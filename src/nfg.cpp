@@ -1,15 +1,27 @@
 #include "nfg.h"
 #include "global.h"
+#include "utils.h"
+
+#include <cmath>
+#include <cassert>
+
 
 static int m_cnt = 0;
 
-static void _AddPoly(poly_ptr poly, div_t a, div_t b);
-static void _FitPiecewiseAux(func_t F, div_t a, div_t b, int k);
+/*
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+** Algorithm 1. FitPiecewise
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+#pragma region FitPiecewise
 
-void FitPiecewise(func_t F, uint64_t a, uint64_t b, int k)
+static void _AddPoly(disc_poly_ptr poly, double a, double b);
+static void _FitPiecewiseAux(func_t F, double a, double b, int k);
+
+void FitPiecewise(func_t F, double a, double b, int k)
 {
 	m_cnt = 0;
-	polynomials.clear();
+	disc_polys.clear();
 	divisions.clear();
 	_FitPiecewiseAux(F, a, b, k);
 }
@@ -17,9 +29,9 @@ void FitPiecewise(func_t F, uint64_t a, uint64_t b, int k)
 /*
  * Add a polynomial and the segment it represents.
  */
-static void _AddPoly(poly_ptr poly, div_t a, div_t b)
+static void _AddPoly(disc_poly_ptr poly, double a, double b)
 {
-	polynomials.emplace_back(poly);
+	disc_polys.emplace_back(poly);
 	if (divisions.empty())
 		divisions.push_back(a);
 	divisions.push_back(b);
@@ -29,16 +41,16 @@ static void _AddPoly(poly_ptr poly, div_t a, div_t b)
  * This will be called recursively, and the segments in [a, b] are
  * calculated strictly from left to right.
  */
-static void _FitPiecewiseAux(func_t F, div_t a, div_t b, int k)
+static void _FitPiecewiseAux(func_t F, double a, double b, int k)
 {
-	poly_ptr poly = FitOnePiece(F, a, b, k);
+	disc_poly_ptr poly = FitOnePiece(F, a, b, k);
 	if (poly)
 	{
 		_AddPoly(poly, a, b);
 	}
 	else
 	{
-		div_t mid = (a + b) / 2;
+		double mid = (a + b) / 2;
 		FitPiecewise(F, a, mid, k);
 		FitPiecewise(F, mid, b, k);
 
@@ -64,7 +76,7 @@ static void _FitPiecewiseAux(func_t F, div_t a, div_t b, int k)
 			divisions.erase(divisions.begin() + (i + 1));
 
 			// Erase p[i], then it points at p[i + 1]
-			auto it = polynomials.erase(polynomials.begin() + i);
+			auto it = disc_polys.erase(disc_polys.begin() + i);
 			*it = poly;	// make p[i + 1] p[k]
 		}
 		else
@@ -72,8 +84,101 @@ static void _FitPiecewiseAux(func_t F, div_t a, div_t b, int k)
 	}
 }
 
+#pragma endregion
 
-poly_ptr FitOnePiece(func_t F, uint64_t a, uint64_t b, int k)
+
+/*
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+** Algorithm 2. FitOnePiece
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+#pragma region FitOnePiece
+
+static int ConstrainK(double a, double b, int k);
+static disc_poly_ptr ScalePoly(cont_poly_ptr poly, double a, double b);
+static disc_poly_ptr ResidualBoosting(disc_poly_ptr poly);
+static void ExpandPoly(disc_poly_ptr poly, int k);
+static bool EvaluatePrecision(disc_poly_ptr poly, func_t F, fxp_arr_ptr points);
+
+disc_poly_ptr FitOnePiece(func_t F, double a, double b, int k)
 {
+	/* Step 1. Constrain k */
+	int k_bar = ConstrainK(a, b, k);
+	
+	/* Step 2. Fit best polynomial in FLP space. */
 
+	/*
+	 * Maximum representable points number.
+	 * N = (b - a) / (2 ^ -fxp_f) = (b - a) * (2 ^ fxp_f)
+	 */
+	int N = (int)std::floor((b - a) * (double)((uint64_t)1 << fxp_f));
+	
+	cont_poly_ptr cont_poly(nullptr);
+	if (N > k_bar + 1)
+		cont_poly = ChebyInterpolation(F, a, b, k);
+	else
+	{
+		k_bar = N - 1;
+		cont_poly = LagrangeInterpolation(F, a, b, k);
+	}
+
+	assert(cont_poly);	// must not be nullptr
+
+	/* Step 3. Convert to FXP space. */
+	disc_poly_ptr disc_poly = ScalePoly(cont_poly, a, b);
+
+	/* Step 4. Further reducing the rounding precision loss. */
+	disc_poly = ResidualBoosting(disc_poly);
+
+	ExpandPoly(disc_poly, k);
+
+	/* Step 5. Check accuracy and return. */
+	int sampled_number = std::min(MS, N);
+	auto x_arr = LinspaceFXP(a, b, sampled_number);
+	if (EvaluatePrecision(disc_poly, F, x_arr))
+		return disc_poly;
+	else
+		return nullptr;
 }
+
+static int ConstrainK(double a, double b, int k)
+{
+	double x_max = std::max(std::abs(a), std::abs(b));
+	double x_min = std::min(std::abs(a), std::abs(b));
+	int k_o = (x_max < 1.0) ? k : (int)std::floor((fxp_n - fxp_f - 1) / std::log2(x_max));
+	int k_u = (x_min > 1.0) ? k : (int)std::floor(fxp_f / (-std::log2(x_min)));
+
+	return std::min(k, std::min(k_u, k_o));
+}
+
+static disc_poly_ptr ScalePoly(cont_poly_ptr poly, double a, double b)
+{
+	return nullptr;
+}
+
+static disc_poly_ptr ResidualBoosting(disc_poly_ptr poly)
+{
+	return nullptr;
+}
+
+/*
+ * Expand coefficients and scaling factors to k.
+ */
+static void ExpandPoly(disc_poly_ptr poly, int k)
+{
+	while (poly->size() <= k)
+		poly->push_back(0);
+}
+
+static bool EvaluatePrecision(disc_poly_ptr poly, func_t F, fxp_arr_ptr points)
+{
+	for (auto x : *points)
+	{
+		if (Distance(FXPsimFLP(Evaluate(poly, x)), FXPsimFLP(F(x))) > EPSILON)
+			return false;
+	}
+
+	return true;
+}
+
+#pragma endregion
