@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <vector>
 #include <set>
+#include <memory>
 
 /*
  * We assume F(x) is a Lipschitz continuous function, and we can evaluate
@@ -18,6 +19,12 @@ typedef uint32_t func_t(uint32_t);
  * A k-polynomial can be presented as k + 1 coefficients.
  */
 typedef std::vector<uint64_t> poly_t;
+typedef std::shared_ptr<poly_t> poly_ptr;
+
+/*
+ * Division type.
+ */
+typedef double div_t;
 
 extern int MS;    // Max sampling numbers.
 extern int m_max; // Max pieces.
@@ -26,9 +33,9 @@ extern int m_max; // Max pieces.
  * The fitted piecewise polynomial p(k, m) hat.
  * The subscription starts with 1?
  */
-extern std::vector<poly_t> polynomials;
+extern std::vector<poly_ptr> polynomials;
 
 // The divisions [w0, w1, ... ] of [a, b]
-extern std::vector<uint64_t> divisions;
+extern std::vector<div_t> divisions;
 
 #endif

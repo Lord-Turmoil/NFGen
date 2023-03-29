@@ -3,8 +3,8 @@
 
 static int m_cnt = 0;
 
-static void _AddPoly(const poly_t poly, uint64_t a, uint64_t b);
-static void _FitPiecewiseAux(func_t F, uint64_t a, uint64_t b, int k);
+static void _AddPoly(poly_ptr poly, div_t a, div_t b);
+static void _FitPiecewiseAux(func_t F, div_t a, div_t b, int k);
 
 void FitPiecewise(func_t F, uint64_t a, uint64_t b, int k)
 {
@@ -17,7 +17,7 @@ void FitPiecewise(func_t F, uint64_t a, uint64_t b, int k)
 /*
  * Add a polynomial and the segment it represents.
  */
-static void _AddPoly(const poly_t poly, uint64_t a, uint64_t b)
+static void _AddPoly(poly_ptr poly, div_t a, div_t b)
 {
 	polynomials.emplace_back(poly);
 	if (divisions.empty())
@@ -29,16 +29,16 @@ static void _AddPoly(const poly_t poly, uint64_t a, uint64_t b)
  * This will be called recursively, and the segments in [a, b] are
  * calculated strictly from left to right.
  */
-static void _FitPiecewiseAux(func_t F, uint64_t a, uint64_t b, int k)
+static void _FitPiecewiseAux(func_t F, div_t a, div_t b, int k)
 {
-	poly_t p = FitOnePiece(F, a, b, k);
-	if (p.size() > 0)
+	poly_ptr poly = FitOnePiece(F, a, b, k);
+	if (poly)
 	{
-		_AddPoly(p, a, b);
+		_AddPoly(poly, a, b);
 	}
 	else
 	{
-		uint64_t mid = (a + b) >> 1;
+		div_t mid = (a + b) / 2;
 		FitPiecewise(F, a, mid, k);
 		FitPiecewise(F, mid, b, k);
 
@@ -55,8 +55,8 @@ static void _FitPiecewiseAux(func_t F, uint64_t a, uint64_t b, int k)
 		a = divisions[i];
 		b = divisions[i + 2];
 
-		p = FitOnePiece(F, a, b, k);
-		if (p.size() > 0)
+		poly = FitOnePiece(F, a, b, k);
+		if (poly)
 		{
 			// Replace p[i] and p[i + 1] with p[k]
 			
@@ -65,9 +65,15 @@ static void _FitPiecewiseAux(func_t F, uint64_t a, uint64_t b, int k)
 
 			// Erase p[i], then it points at p[i + 1]
 			auto it = polynomials.erase(polynomials.begin() + i);
-			*it = p;	// make p[i + 1] p[k]
+			*it = poly;	// make p[i + 1] p[k]
 		}
 		else
 			i++;
 	}
+}
+
+
+poly_ptr FitOnePiece(func_t F, uint64_t a, uint64_t b, int k)
+{
+
 }

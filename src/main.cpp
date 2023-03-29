@@ -1,14 +1,15 @@
 #include <cstdio>
-
+#include <memory>
 #include <cstdlib>
 
 #include "utils.h"
 #include "tools/random.h"
 
 void float_to_fix_test();
+void smart_pointer_test();
 int main()
 {
-	float_to_fix_test();
+	// float_to_fix_test();
 
 	return 0;
 }
@@ -29,4 +30,14 @@ void float_to_fix_test()
 		fixed_to_float(&y, &x2, 1, 20);
 		printf("%-20lf\n", x2);
 	}
+}
+
+void smart_pointer_test()
+{
+	std::shared_ptr<int> p;
+
+	p = nullptr;
+
+	if (!p)
+		printf("p = nullptr");
 }

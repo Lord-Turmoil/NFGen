@@ -11,8 +11,8 @@
  *   FXP -- fixed point
  */
 
-void FitPiecewise(func_t F, uint64_t a, uint64_t b, int k);
+void FitPiecewise(func_t F, div_t a, div_t b, int k);
 
-poly_t FitOnePiece(func_t F, uint64_t a, uint64_t b, int k);
+poly_ptr FitOnePiece(func_t F, div_t a, div_t b, int k);
 
 #endif
