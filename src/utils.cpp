@@ -7,34 +7,34 @@
 ** Float-fixed convert
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-static inline uint64_t _float_to_fixed_aux(double* value, unsigned f)
+static inline fxp_t _float_to_fixed_aux(double* value, unsigned f)
 {
-	return (uint64_t)(std::round((*value) * ((uint64_t)1 << f)));
+	return (fxp_t)(std::round((*value) * ((fxp_t)1 << f)));
 }
 
-static inline double _fixed_to_float_aux(uint64_t* value, unsigned f)
+static inline double _fixed_to_float_aux(fxp_t* value, unsigned f)
 {
-	return (double)((int64_t)(*value)) / (double)((uint64_t)1 << f);
+	return (double)((int64_t)(*value)) / (flp_t)((fxp_t)1 << f);
 }
 
-void float_to_fixed(double* src, uint64_t* dst, size_t size, unsigned f)
+void float_to_fixed(flp_t* src, fxp_t* dst, size_t size, unsigned f)
 {
 	for (size_t i = 0; i < size; i++)
 		*(dst++) = _float_to_fixed_aux(src++, f);
 }
 
-void fixed_to_float(uint64_t* src, double* dst, size_t size, unsigned f)
+void fixed_to_float(fxp_t* src, flp_t* dst, size_t size, unsigned f)
 {
 	for (size_t i = 0; i < size; i++)
 		*(dst++) = _fixed_to_float_aux(src++, f);
 }
 
-uint64_t FLPsimFXP(double flp)
+fxp_t FLPsimFXP(flp_t flp)
 {
 	return _float_to_fixed_aux(&flp, fxp_f);
 }
 
-double FXPsimFLP(uint64_t fxp)
+flp_t FXPsimFLP(fxp_t fxp)
 {
 	return _fixed_to_float_aux(&fxp, fxp_f);
 }
@@ -45,12 +45,12 @@ double FXPsimFLP(uint64_t fxp)
 ** Interpolation
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-cont_poly_ptr ChebyInterpolation(func_t F, double a, double b, int k)
+cont_poly_ptr ChebyInterpolation(func_t F, flp_t a, flp_t b, int k)
 {
 	return nullptr;
 }
 
-cont_poly_ptr LagrangeInterpolation(func_t F, double a, double b, int k)
+cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int k)
 {
 	return nullptr;
 }
@@ -65,13 +65,13 @@ cont_poly_ptr LagrangeInterpolation(func_t F, double a, double b, int k)
 /*
  * There is no legality check by now...
  */
-flp_arr_ptr LinspaceFLP(double a, double b, int n)
+flp_arr_ptr LinspaceFLP(flp_t a, flp_t b, int n)
 {
 	flp_arr_ptr arr(new flp_arr_t(n));
 
-	double step = (b - a) / (n - 1);
-	double left = a;
-	double right = b;
+	flp_t step = (b - a) / (n - 1);
+	flp_t left = a;
+	flp_t right = b;
 
 	int i = 0;
 	int t = n;
@@ -90,7 +90,7 @@ flp_arr_ptr LinspaceFLP(double a, double b, int n)
 	return arr;
 }
 
-fxp_arr_ptr LinspaceFXP(double a, double b, int n)
+fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n)
 {
 	fxp_arr_ptr arr(new fxp_arr_t(n));
 	auto flp_arr = LinspaceFLP(a, b, n);
@@ -106,24 +106,24 @@ fxp_arr_ptr LinspaceFXP(double a, double b, int n)
 ** Evaluate polynomials.
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-uint64_t Evaluate(disc_poly_ptr poly, uint64_t x)
+fxp_t Evaluate(disc_poly_ptr poly, fxp_t x)
 {
-	uint64_t var = 1;
-	uint64_t ret = 0;
+	fxp_t var = 1;
+	fxp_t ret = 0;
 	
 	for (auto cof : *poly)
 	{
-		ret += cof * var;
+		ret += cof.first * cof.second * var;
 		var *= x;
 	}
 
 	return ret;
 }
 
-double Evaluate(cont_poly_ptr poly, double x)
+flp_t Evaluate(cont_poly_ptr poly, flp_t x)
 {
-	double var = 1.0;
-	double ret = 0.0;
+	flp_t var = 1.0;
+	flp_t ret = 0.0;
 
 	for (auto cof : *poly)
 	{
@@ -140,7 +140,7 @@ double Evaluate(cont_poly_ptr poly, double x)
 ** Utils
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-double Distance(double x, double y)
+flp_t Distance(flp_t x, flp_t y)
 {
 	if (std::abs(x) > SOFT_ZERO)
 		return std::abs(x - y) / std::abs(x);

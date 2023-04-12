@@ -15,10 +15,10 @@ static int m_cnt = 0;
 */
 #pragma region FitPiecewise
 
-static void _AddPoly(disc_poly_ptr poly, double a, double b);
-static void _FitPiecewiseAux(func_t F, double a, double b, int k);
+static void _AddPoly(disc_poly_ptr poly, flp_t a, flp_t b);
+static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k);
 
-void FitPiecewise(func_t F, double a, double b, int k)
+void FitPiecewise(func_t F, flp_t a, flp_t b, int k)
 {
 	m_cnt = 0;
 	disc_polys.clear();
@@ -29,7 +29,7 @@ void FitPiecewise(func_t F, double a, double b, int k)
 /*
  * Add a polynomial and the segment it represents.
  */
-static void _AddPoly(disc_poly_ptr poly, double a, double b)
+static void _AddPoly(disc_poly_ptr poly, flp_t a, flp_t b)
 {
 	disc_polys.emplace_back(poly);
 	if (divisions.empty())
@@ -41,7 +41,7 @@ static void _AddPoly(disc_poly_ptr poly, double a, double b)
  * This will be called recursively, and the segments in [a, b] are
  * calculated strictly from left to right.
  */
-static void _FitPiecewiseAux(func_t F, double a, double b, int k)
+static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 {
 	disc_poly_ptr poly = FitOnePiece(F, a, b, k);
 	if (poly)
@@ -94,13 +94,17 @@ static void _FitPiecewiseAux(func_t F, double a, double b, int k)
 */
 #pragma region FitOnePiece
 
-static int ConstrainK(double a, double b, int k);
-static disc_poly_ptr ScalePoly(cont_poly_ptr poly, double a, double b);
+static int ConstrainK(flp_t a, flp_t b, int k);
+
+static disc_poly_ptr ScalePoly(cont_poly_ptr poly, flp_t a, flp_t b);
+
 static disc_poly_ptr ResidualBoosting(disc_poly_ptr poly);
+
 static void ExpandPoly(disc_poly_ptr poly, int k);
+
 static bool EvaluatePrecision(disc_poly_ptr poly, func_t F, fxp_arr_ptr points);
 
-disc_poly_ptr FitOnePiece(func_t F, double a, double b, int k)
+disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 {
 	/* Step 1. Constrain k */
 	int k_bar = ConstrainK(a, b, k);
@@ -141,7 +145,7 @@ disc_poly_ptr FitOnePiece(func_t F, double a, double b, int k)
 		return nullptr;
 }
 
-static int ConstrainK(double a, double b, int k)
+static int ConstrainK(flp_t a, flp_t b, int k)
 {
 	double x_max = std::max(std::abs(a), std::abs(b));
 	double x_min = std::min(std::abs(a), std::abs(b));
@@ -151,7 +155,7 @@ static int ConstrainK(double a, double b, int k)
 	return std::min(k, std::min(k_u, k_o));
 }
 
-static disc_poly_ptr ScalePoly(cont_poly_ptr poly, double a, double b)
+static disc_poly_ptr ScalePoly(cont_poly_ptr poly, flp_t a, flp_t b)
 {
 	return nullptr;
 }
@@ -167,7 +171,7 @@ static disc_poly_ptr ResidualBoosting(disc_poly_ptr poly)
 static void ExpandPoly(disc_poly_ptr poly, int k)
 {
 	while (poly->size() <= k)
-		poly->push_back(0);
+		poly->emplace_back((fxp_t)0, (fxp_t)0);
 }
 
 static bool EvaluatePrecision(disc_poly_ptr poly, func_t F, fxp_arr_ptr points)

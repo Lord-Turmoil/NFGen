@@ -11,12 +11,8 @@
  *   FXP -- fixed point
  */
 
-void FitPiecewise(func_t F, double a, double b, int k);
+void FitPiecewise(func_t F, flp_t a, flp_t b, int k);
 
-disc_poly_ptr FitOnePiece(func_t F, double a, double b, int k);
-
-
-
-
+disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k);
 
 #endif

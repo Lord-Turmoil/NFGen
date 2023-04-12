@@ -5,22 +5,22 @@
 
 #include "global.h"
 
-static_assert(sizeof(uint64_t) == 8, "sizeof(uint64_t) error");
+static_assert(sizeof(fxp_t) == 8, "sizeof(fxp_t) error");
 
-void float_to_fixed(double* src, uint64_t* dst, size_t size, unsigned f);
-void fixed_to_float(uint64_t* src, double* dst, size_t size, unsigned f);
-uint64_t FLPsimFXP(double flp);
-double FXPsimFLP(uint64_t fxp);
+void float_to_fixed(flp_t* src, fxp_t* dst, size_t size, unsigned f);
+void fixed_to_float(fxp_t* src, flp_t* dst, size_t size, unsigned f);
+fxp_t FLPsimFXP(flp_t flp);
+flp_t FXPsimFLP(fxp_t fxp);
 
-cont_poly_ptr ChebyInterpolation(func_t F, double a, double b, int k);
-cont_poly_ptr LagrangeInterpolation(func_t F, double a, double b, int k);
+cont_poly_ptr ChebyInterpolation(func_t F, flp_t a, flp_t b, int k);
+cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int k);
 
-flp_arr_ptr LinspaceFLP(double a, double b, int n);
-fxp_arr_ptr LinspaceFXP(double a, double b, int n);
+flp_arr_ptr LinspaceFLP(flp_t a, flp_t b, int n);
+fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n);
 
-uint64_t Evaluate(disc_poly_ptr poly, uint64_t x);
-double Evaluate(cont_poly_ptr poly, double x);
+fxp_t Evaluate(disc_poly_ptr poly, fxp_t x);
+flp_t Evaluate(cont_poly_ptr poly, flp_t x);
 
-double Distance(double x, double y);
+flp_t Distance(flp_t x, flp_t y);
 
 #endif
