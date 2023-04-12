@@ -22,15 +22,17 @@ typedef std::shared_ptr<fxp_arr_t> fxp_arr_ptr;
  * F(x) in plaintext using FLP.
  * Here, `func_t` is the so-called continuous function.
  */
-typedef fxp_t func_t(fxp_t);
+// typedef fxp_t func_t(fxp_t);
+typedef flp_t func_t(flp_t);
 
 /*
  * A k-polynomial can be presented as k + 1 coefficients.
  * Both FLP (continuous) and FXP (discrete) forms are needed.
+ * To avoid fxp overflow, we use two terms to represent one coefficient.
+ * But flp coefficient doesn't need this.
  */
-
-// To avoid overflow, we use two terms to represent one coefficient.
-typedef std::pair<flp_t, flp_t> flp_cof_t;
+// typedef std::pair<flp_t, flp_t> flp_cof_t;
+typedef flp_t                   flp_cof_t;
 typedef std::pair<fxp_t, fxp_t> fxp_cof_t;
 
 // continuous and discrete polynomial

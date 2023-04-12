@@ -54,7 +54,7 @@ static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 		FitPiecewise(F, a, mid, k);
 		FitPiecewise(F, mid, b, k);
 
-		if (m_cnt++ > m_max)
+		if (m_cnt++ > m_MAX)
 			return;
 	}
 
@@ -96,6 +96,7 @@ static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 
 static int ConstrainK(flp_t a, flp_t b, int k);
 
+static void _ScaleC(flp_t c, int k, flp_t x, fxp_t* c_hat, fxp_t* s_hat);
 static disc_poly_ptr ScalePoly(cont_poly_ptr poly, flp_t a, flp_t b);
 
 static disc_poly_ptr ResidualBoosting(disc_poly_ptr poly);
@@ -123,7 +124,7 @@ disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	else
 	{
 		k_bar = N - 1;
-		cont_poly = LagrangeInterpolation(F, a, b, k);
+		cont_poly = LagrangeInterpolation(F, a, b, N, k);
 	}
 
 	assert(cont_poly);	// must not be nullptr
@@ -155,9 +156,33 @@ static int ConstrainK(flp_t a, flp_t b, int k)
 	return std::min(k, std::min(k_u, k_o));
 }
 
+static void _ScaleC(flp_t c, int k, flp_t x, fxp_t* c_hat, fxp_t* s_hat)
+{
+	assert(s_hat);
+	assert(c_hat);
+
+	fxp_t s1 = (fxp_t)1;	// FLPsimFXP(2^-f) = 2^-f * 2^f = 1;
+	fxp_t s2 = FLPsimFXP(c * std::pow(x, k) / std::pow(2.0, fxp_n - fxp_f - 1));
+	
+	*s_hat = std::min(std::max(s1, s2), (fxp_t)1);
+	*c_hat = FLPsimFXP(c / *s_hat);
+}
+
 static disc_poly_ptr ScalePoly(cont_poly_ptr poly, flp_t a, flp_t b)
 {
-	return nullptr;
+	assert(poly);
+
+	int k = (int)poly->size();
+	flp_t x_hat = std::max(std::abs(a), std::abs(b));
+	disc_poly_ptr disc(new disc_poly_t());
+	fxp_t c, s;
+	for (int i = 0; i < k; i++)
+	{
+		_ScaleC((*poly)[i], i, x_hat, &c, &s);
+		disc->emplace_back(c, s);
+	}
+
+	return disc;
 }
 
 static disc_poly_ptr ResidualBoosting(disc_poly_ptr poly)
@@ -178,7 +203,7 @@ static bool EvaluatePrecision(disc_poly_ptr poly, func_t F, fxp_arr_ptr points)
 {
 	for (auto x : *points)
 	{
-		if (Distance(FXPsimFLP(Evaluate(poly, x)), FXPsimFLP(F(x))) > EPSILON)
+		if (Distance(EvaluateDiscAsCont(poly, x), F(FXPsimFLP(x))) > EPSILON)
 			return false;
 	}
 

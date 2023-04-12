@@ -1,6 +1,8 @@
 #include "utils.h"
 
 #include <cmath>
+#include <cassert>
+
 
 /*
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -50,11 +52,69 @@ cont_poly_ptr ChebyInterpolation(func_t F, flp_t a, flp_t b, int k)
 	return nullptr;
 }
 
-cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int k)
+
+// Reference: https://blog.csdn.net/watqw/article/details/124331000
+static std::vector<flp_t> _LagrangeLK(int k, flp_arr_t& x, flp_arr_t& y);
+static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_t& x, std::vector<double>& vec);
+cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int N, int k)
 {
-	return nullptr;
+	// Get feasible points.
+	flp_arr_ptr x_set = LinspaceFLP(a, b, N);
+	assert(x_set);
+	flp_arr_ptr y_set(new flp_arr_t());
+	for (auto it : *x_set)
+		y_set->push_back(F(it));
+	
+	// Calculate LK
+	std::vector<std::vector<flp_t>> lk(x_set->size());
+	for (int i = 0; i < lk.size(); i++)
+		lk[i] = _LagrangeLK(i, *x_set, *y_set);
+
+	cont_poly_ptr poly(new cont_poly_t(std::min((int)x_set->size(), k + 1), 0.0));
+	for (int i = 0; i < lk.size(); i++)
+	{
+		for (int j = 0; j < poly->size(); j++)
+			(*poly)[j] += (*y_set)[i] * lk[i][j];
+	}
+
+	return poly;
 }
 
+static std::vector<flp_t> _LagrangeLK(int k, flp_arr_t& x, flp_arr_t& y)
+{
+	flp_t denominator = 1.0;
+	for (int i = 0; i < x.size(); i++)
+	{
+		if (i == k)
+			continue;
+		denominator *= x[k] - x[i];
+	}
+
+	std::vector<flp_t> ret(x.size(), 0);
+	_LagrangeAux(k, 0, 0, 1.0, x, ret);
+	for (int i = 0; i < ret.size(); i++)
+		ret[i] = ret[i] / denominator;
+
+	return ret;
+}
+
+static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_t& x, std::vector<double>& vec)
+{
+	if (i >= x.size())
+	{
+		vec[exp] += val;
+		return;
+	}
+
+	if (i == k)
+	{
+		_LagrangeAux(k, i + 1, exp, val, x, vec);
+		return;
+	}
+
+	_LagrangeAux(k, i + 1, exp, -val * x[i], x, vec);
+	_LagrangeAux(k, i + 1, exp + 1, val, x, vec);
+}
 
 /*
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -82,7 +142,7 @@ flp_arr_ptr LinspaceFLP(flp_t a, flp_t b, int n)
 		left += step;
 		right -= step;
 		i++;
-		n -= 2;
+		t -= 2;
 	}
 	if (t > 0)
 		(*arr)[i] = (left + right) / 2;
@@ -106,30 +166,28 @@ fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n)
 ** Evaluate polynomials.
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-fxp_t Evaluate(disc_poly_ptr poly, fxp_t x)
+flp_t EvaluateDiscAsCont(disc_poly_ptr poly, fxp_t x)
 {
-	fxp_t var = 1;
-	fxp_t ret = 0;
-	
-	for (auto cof : *poly)
-	{
-		ret += cof.first * cof.second * var;
-		var *= x;
-	}
+	flp_t base = FXPsimFLP(x);
+	flp_t ret = 0;
+
+	for (auto it = poly->rbegin(); it != poly->rend(); it++)
+		ret = ret * base + FXPsimFLP(it->first) * FXPsimFLP(it->second);
 
 	return ret;
 }
 
-flp_t Evaluate(cont_poly_ptr poly, flp_t x)
+fxp_t EvaluateDiscAsDisc(disc_poly_ptr poly, fxp_t x)
 {
-	flp_t var = 1.0;
+	return FLPsimFXP(EvaluateDiscAsCont(poly, x));
+}
+
+flp_t EvaluateCont(cont_poly_ptr poly, flp_t x)
+{
 	flp_t ret = 0.0;
 
-	for (auto cof : *poly)
-	{
-		ret += cof * var;
-		var *= x;
-	}
+	for (auto it = poly->rbegin(); it != poly->rend(); it++)
+		ret = ret * x + *it;
 
 	return ret;
 }
