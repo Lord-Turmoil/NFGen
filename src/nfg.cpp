@@ -105,6 +105,7 @@ static void ExpandPoly(disc_poly_ptr poly, int k);
 
 static bool EvaluatePrecision(disc_poly_ptr poly, func_t F, fxp_arr_ptr points);
 
+static 
 disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 {
 	/* Step 1. Constrain k */
@@ -120,11 +121,11 @@ disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	
 	cont_poly_ptr cont_poly(nullptr);
 	if (N > k_bar + 1)
-		cont_poly = ChebyInterpolation(F, a, b, k);
+		cont_poly = ChebyshevInterpolation(F, a, b, k);
 	else
 	{
 		k_bar = N - 1;
-		cont_poly = LagrangeInterpolation(F, a, b, N, k);
+		cont_poly = LagrangeInterpolation(F, a, b, k);
 	}
 
 	assert(cont_poly);	// must not be nullptr

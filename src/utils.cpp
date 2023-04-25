@@ -47,30 +47,75 @@ flp_t FXPsimFLP(fxp_t fxp)
 ** Interpolation
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
-cont_poly_ptr ChebyInterpolation(func_t F, flp_t a, flp_t b, int k)
+
+// actual valid value:  3.141592653589793;
+static const flp_t PI = 3.141592653589793238462643383;
+
+// Both Chebyshev and Lagrange interpolation will call this one at last.
+// The wrapper function only decides the points to use.
+static cont_poly_ptr _LagrangeInterpolation(func_t F, flp_arr_ptr x_set, flp_arr_ptr y_set, int k_bar);
+
+// Reference: https://blog.csdn.net/watqw/article/details/124331000
+static std::vector<flp_t> _LagrangeLK(int k, flp_arr_ptr x_set, flp_arr_ptr y_set);
+static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_ptr x_set, std::vector<double>& vec);
+
+
+// Use Chebyshev selected points.
+cont_poly_ptr ChebyshevInterpolation(func_t F, flp_t a, flp_t b, int k_bar)
 {
-	return nullptr;
+	assert(b - a > 0.0);
+	
+	const int N = k_bar;
+
+	flp_arr_ptr x_set = flp_arr_ptr(new flp_arr_t());
+	flp_arr_ptr y_set = flp_arr_ptr(new flp_arr_t());
+	
+	for (int i = 1; i <= N; i++)
+	{
+		flp_t _x = std::cos(((2 * i - 1) * PI) / (2.0 * N));
+		flp_t x = ((b + a) + (b - a) * _x) * 0.5;
+		x_set->push_back(x);
+		y_set->push_back(F(x));
+	}
+
+	return _LagrangeInterpolation(F, x_set, y_set, k_bar);
+}
+
+// Use all feasible points in [a, b].
+cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int k_bar)
+{
+	// Get feasible points.
+	fxp_t left = FLPsimFXP(a);
+	fxp_t right = FLPsimFXP(b);
+	
+	const int N = right - left + 1;
+	assert(N > 0);
+
+	// Readjust k_bar.
+	k_bar = N - 1;
+
+	flp_arr_ptr x_set = flp_arr_ptr(new flp_arr_t());
+	flp_arr_ptr y_set = flp_arr_ptr(new flp_arr_t());
+	
+	for (fxp_t i = left; i <= right; i++)
+	{
+		flp_t x = FXPsimFLP(i);
+		x_set->push_back(x);
+		y_set->push_back(F(x));
+	}
+	
+	return _LagrangeInterpolation(F, x_set, y_set, k_bar);
 }
 
 
-// Reference: https://blog.csdn.net/watqw/article/details/124331000
-static std::vector<flp_t> _LagrangeLK(int k, flp_arr_t& x, flp_arr_t& y);
-static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_t& x, std::vector<double>& vec);
-cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int N, int k)
+static cont_poly_ptr _LagrangeInterpolation(func_t F, flp_arr_ptr x_set, flp_arr_ptr y_set, int k_bar)
 {
-	// Get feasible points.
-	flp_arr_ptr x_set = LinspaceFLP(a, b, N);
-	assert(x_set);
-	flp_arr_ptr y_set(new flp_arr_t());
-	for (auto it : *x_set)
-		y_set->push_back(F(it));
-	
 	// Calculate LK
 	std::vector<std::vector<flp_t>> lk(x_set->size());
 	for (int i = 0; i < lk.size(); i++)
-		lk[i] = _LagrangeLK(i, *x_set, *y_set);
+		lk[i] = _LagrangeLK(i, x_set, y_set);
 
-	cont_poly_ptr poly(new cont_poly_t(std::min((int)x_set->size(), k + 1), 0.0));
+	cont_poly_ptr poly(new cont_poly_t(std::min((int)x_set->size(), k_bar + 1), 0.0));
 	for (int i = 0; i < lk.size(); i++)
 	{
 		for (int j = 0; j < poly->size(); j++)
@@ -80,27 +125,27 @@ cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int N, int k)
 	return poly;
 }
 
-static std::vector<flp_t> _LagrangeLK(int k, flp_arr_t& x, flp_arr_t& y)
+static std::vector<flp_t> _LagrangeLK(int k, flp_arr_ptr x_set, flp_arr_ptr y_set)
 {
 	flp_t denominator = 1.0;
-	for (int i = 0; i < x.size(); i++)
+	for (int i = 0; i < x_set->size(); i++)
 	{
 		if (i == k)
 			continue;
-		denominator *= x[k] - x[i];
+		denominator *= (*x_set)[k] - (*x_set)[i];
 	}
 
-	std::vector<flp_t> ret(x.size(), 0);
-	_LagrangeAux(k, 0, 0, 1.0, x, ret);
+	std::vector<flp_t> ret(x_set->size(), 0);
+	_LagrangeAux(k, 0, 0, 1.0, x_set, ret);
 	for (int i = 0; i < ret.size(); i++)
 		ret[i] = ret[i] / denominator;
 
 	return ret;
 }
 
-static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_t& x, std::vector<double>& vec)
+static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_ptr x_set, std::vector<double>& vec)
 {
-	if (i >= x.size())
+	if (i >= x_set->size())
 	{
 		vec[exp] += val;
 		return;
@@ -108,12 +153,12 @@ static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_t& x, std::v
 
 	if (i == k)
 	{
-		_LagrangeAux(k, i + 1, exp, val, x, vec);
+		_LagrangeAux(k, i + 1, exp, val, x_set, vec);
 		return;
 	}
 
-	_LagrangeAux(k, i + 1, exp, -val * x[i], x, vec);
-	_LagrangeAux(k, i + 1, exp + 1, val, x, vec);
+	_LagrangeAux(k, i + 1, exp, -val * (*x_set)[i], x_set, vec);
+	_LagrangeAux(k, i + 1, exp + 1, val, x_set, vec);
 }
 
 /*
