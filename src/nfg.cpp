@@ -256,6 +256,8 @@ static void ScaleC(flp_t c, int k, flp_t x, fxp_t* c_hat, fxp_t* s_hat)
 
 disc_poly_ptr ResidualBoosting(disc_poly_ptr poly, func_t F, flp_t a, flp_t b)
 {
+	disc_poly_ptr ret = disc_poly_ptr(new disc_poly_t(*poly));
+
 	return nullptr;
 }
 

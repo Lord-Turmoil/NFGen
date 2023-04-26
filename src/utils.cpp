@@ -94,7 +94,7 @@ cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int k_bar)
 	fxp_t left = float_to_fixed(a, fxp_f);
 	fxp_t right = float_to_fixed(b, fxp_f);
 	
-	const int N = right - left + 1;
+	const int N = (int)(right - left + 1);
 	assert(N > 0);
 
 	// Readjust k_bar.
