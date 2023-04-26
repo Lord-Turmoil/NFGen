@@ -1,4 +1,4 @@
 # NFGen
 
 #### Description
-BUAA 2023 Spring Encryption.
+BUAA 2023 Spring Cryptography.
