@@ -105,8 +105,7 @@ static void ExpandPoly(disc_poly_ptr poly, int k);
 
 static bool EvaluatePrecision(disc_poly_ptr poly, func_t F, fxp_arr_ptr points);
 
-static 
-disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
+static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 {
 	/* Step 1. Constrain k */
 	int k_bar = ConstrainK(a, b, k);
