@@ -9,6 +9,8 @@
 ** Float-fixed convert
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
+#pragma region FLP_FXP
+
 static inline fxp_t _float_to_fixed_aux(double* value, unsigned f)
 {
 	return (fxp_t)(std::round((*value) * ((fxp_t)1 << f)));
@@ -31,15 +33,17 @@ void fixed_to_float(fxp_t* src, flp_t* dst, size_t size, unsigned f)
 		*(dst++) = _fixed_to_float_aux(src++, f);
 }
 
-fxp_t FLPsimFXP(flp_t flp)
+fxp_t float_to_fixed(flp_t flp, unsigned f)
 {
-	return _float_to_fixed_aux(&flp, fxp_f);
+	return _float_to_fixed_aux(&flp, f);
 }
 
-flp_t FXPsimFLP(fxp_t fxp)
+flp_t fixed_to_float(fxp_t fxp, unsigned f)
 {
-	return _fixed_to_float_aux(&fxp, fxp_f);
+	return _fixed_to_float_aux(&fxp, f);
 }
+
+#pragma endregion
 
 
 /*
@@ -47,6 +51,8 @@ flp_t FXPsimFLP(fxp_t fxp)
 ** Interpolation
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
+
+#pragma region Interpolation
 
 // actual valid value:  3.141592653589793;
 static const flp_t PI = 3.141592653589793238462643383;
@@ -85,8 +91,8 @@ cont_poly_ptr ChebyshevInterpolation(func_t F, flp_t a, flp_t b, int k_bar)
 cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int k_bar)
 {
 	// Get feasible points.
-	fxp_t left = FLPsimFXP(a);
-	fxp_t right = FLPsimFXP(b);
+	fxp_t left = float_to_fixed(a, fxp_f);
+	fxp_t right = float_to_fixed(b, fxp_f);
 	
 	const int N = right - left + 1;
 	assert(N > 0);
@@ -99,7 +105,7 @@ cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int k_bar)
 	
 	for (fxp_t i = left; i <= right; i++)
 	{
-		flp_t x = FXPsimFLP(i);
+		flp_t x = fixed_to_float(i, fxp_f);
 		x_set->push_back(x);
 		y_set->push_back(F(x));
 	}
@@ -161,11 +167,16 @@ static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_ptr x_set, s
 	_LagrangeAux(k, i + 1, exp + 1, val, x_set, vec);
 }
 
+#pragma endregion
+
+
 /*
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ** Linspace
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
+
+#pragma region LinearSpace
 
 /*
  * There is no legality check by now...
@@ -205,26 +216,34 @@ fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n)
 	return arr;
 }
 
+#pragma endregion
+
 
 /*
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ** Evaluate polynomials.
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
+
+#pragma region Evalutation
+
 flp_t EvaluateDiscAsCont(disc_poly_ptr poly, fxp_t x)
 {
-	flp_t base = FXPsimFLP(x);
+	flp_t base = fixed_to_float(x, fxp_f);
 	flp_t ret = 0;
 
 	for (auto it = poly->rbegin(); it != poly->rend(); it++)
-		ret = ret * base + FXPsimFLP(it->first) * FXPsimFLP(it->second);
+	{
+		ret *= base;
+		ret += fixed_to_float(it->first, fxp_f) * fixed_to_float(it->second, fxp_f);
+	}
 
 	return ret;
 }
 
 fxp_t EvaluateDiscAsDisc(disc_poly_ptr poly, fxp_t x)
 {
-	return FLPsimFXP(EvaluateDiscAsCont(poly, x));
+	return float_to_fixed(EvaluateDiscAsCont(poly, x), fxp_f);
 }
 
 flp_t EvaluateCont(cont_poly_ptr poly, flp_t x)
@@ -236,6 +255,8 @@ flp_t EvaluateCont(cont_poly_ptr poly, flp_t x)
 
 	return ret;
 }
+
+#pragma endregion
 
 
 /*
