@@ -4,6 +4,10 @@
 #define _FUNC_H_
 
 #include "utils.h"
+#include "global.h"
+
+#include <memory>
+
 
 // In order to use one class to stand for all other templates.
 class BaseFunc
@@ -12,8 +16,6 @@ public:
 	virtual ~BaseFunc() {}
 	virtual flp_t Evaluate(flp_t x) = 0;
 };
-
-typedef std::shared_ptr<BaseFunc> FuncPtr;
 
 /*
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -154,5 +156,8 @@ private:
 ** Func Wrapper
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
+
+typedef std::shared_ptr<BaseFunc> FuncPtr;
+
 
 #endif

@@ -39,6 +39,9 @@
     <ClInclude Include="src\func.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\interpolation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -54,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\nfg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\interpolation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

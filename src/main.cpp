@@ -77,6 +77,7 @@ static flp_t func(flp_t x)
 	return 1 + x * x + 3.4 * x * x * x;
 }
 
+#if 0
 void lagrange_test()
 {
 	auto poly = LagrangeInterpolation(func, 1, 20, 4);
@@ -97,6 +98,8 @@ void lagrange_test()
 		printf_s("%20f - %20f - %20f\n", x, func(x), EvaluateCont(poly, x));
 	}
 }
+
+#endif
 
 void fxp_mult_test()
 {

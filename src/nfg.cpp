@@ -1,6 +1,7 @@
 #include "nfg.h"
 #include "global.h"
 #include "utils.h"
+#include "interpolation.h"
 
 #include <cmath>
 #include <cassert>
@@ -17,9 +18,9 @@ static int m_cnt = 0;
 #pragma region FitPiecewise
 
 static void _AddPoly(disc_poly_ptr poly, flp_t a, flp_t b);
-static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k);
+static void _FitPiecewiseAux(FuncPtr F, flp_t a, flp_t b, int k);
 
-void FitPiecewise(func_t F, flp_t a, flp_t b, int k)
+void FitPiecewise(FuncPtr F, flp_t a, flp_t b, int k)
 {
 	m_cnt = 0;
 	disc_polys.clear();
@@ -42,7 +43,7 @@ static void _AddPoly(disc_poly_ptr poly, flp_t a, flp_t b)
  * This will be called recursively, and the segments in [a, b] are
  * calculated strictly from left to right.
  */
-static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
+static void _FitPiecewiseAux(FuncPtr F, flp_t a, flp_t b, int k)
 {
 	disc_poly_ptr poly = FitOnePiece(F, a, b, k);
 	if (poly)
@@ -97,9 +98,9 @@ static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 #pragma region FitOnePiece
 
 static void ExpandPoly(disc_poly_ptr poly, int k);
-static bool EvaluatePrecision(func_t F, disc_poly_ptr poly, fxp_arr_ptr points);
+static bool EvaluatePrecision(FuncPtr F, disc_poly_ptr poly, fxp_arr_ptr points);
 
-static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
+static disc_poly_ptr FitOnePiece(FuncPtr F, flp_t a, flp_t b, int k)
 {
 	/* Step 1. Constrain k */
 	int k_bar = ConstrainK(a, b, k);
@@ -149,11 +150,11 @@ static void ExpandPoly(disc_poly_ptr poly, int k)
 		poly->emplace_back((fxp_t)0, (fxp_t)0);
 }
 
-static bool EvaluatePrecision(func_t F, disc_poly_ptr poly, fxp_arr_ptr points)
+static bool EvaluatePrecision(FuncPtr F, disc_poly_ptr poly, fxp_arr_ptr points)
 {
 	for (auto x : *points)
 	{
-		if (Distance(EvaluateDiscAsCont(poly, x), F(FXPsimFLP(x))) > EPSILON)
+		if (Distance(EvaluateDiscAsCont(poly, x), F->Evaluate(FXPsimFLP(x))) > EPSILON)
 			return false;
 	}
 
@@ -254,7 +255,7 @@ static void ScaleC(flp_t c, int k, flp_t x, fxp_t* c_hat, fxp_t* s_hat)
 */
 #pragma region ResidualBoosting
 
-disc_poly_ptr ResidualBoosting(disc_poly_ptr poly, func_t F, flp_t a, flp_t b)
+disc_poly_ptr ResidualBoosting(disc_poly_ptr poly, FuncPtr F, flp_t a, flp_t b)
 {
 	disc_poly_ptr ret = disc_poly_ptr(new disc_poly_t(*poly));
 

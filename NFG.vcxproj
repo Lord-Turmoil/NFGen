@@ -130,12 +130,14 @@
     <ClInclude Include="src\defines.h" />
     <ClInclude Include="src\func.h" />
     <ClInclude Include="src\global.h" />
+    <ClInclude Include="src\interpolation.h" />
     <ClInclude Include="src\nfg.h" />
     <ClInclude Include="src\tools\random.h" />
     <ClInclude Include="src\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\global.cpp" />
+    <ClCompile Include="src\interpolation.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\nfg.cpp" />
     <ClCompile Include="src\tools\random.cpp" />

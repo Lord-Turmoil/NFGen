@@ -15,10 +15,6 @@ fxp_t float_to_fixed(flp_t flp, unsigned f);
 flp_t fixed_to_float(fxp_t fxp, unsigned f);
 
 
-cont_poly_ptr ChebyshevInterpolation(func_t F, flp_t a, flp_t b, int k);
-cont_poly_ptr LagrangeInterpolation(func_t F, flp_t a, flp_t b, int k);
-
-
 flp_arr_ptr LinspaceFLP(flp_t a, flp_t b, int n);
 fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n);
 
