@@ -98,7 +98,7 @@ static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 #pragma region FitOnePiece
 
 static void ExpandPoly(disc_poly_ptr poly, int k);
-static bool EvaluatePrecision(func_t F, disc_poly_ptr poly, fxp_arr_ptr points);
+static bool _CheckPrecision(func_t F, disc_poly_ptr poly, fxp_arr_ptr points);
 
 static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 {
@@ -111,7 +111,7 @@ static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	 * Maximum representable points number.
 	 * N = (b - a) / (2 ^ -fxp_f) = (b - a) * (2 ^ fxp_f)
 	 */
-	int N = (int)std::floor((b - a) * (double)((uint64_t)1 << fxp_f));
+	int N = GetFeasiblePointNumber(a, b);
 	
 	cont_poly_ptr cont_poly(nullptr);
 	if (N > k_bar + 1)
@@ -135,7 +135,7 @@ static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	/* Step 5. Check accuracy and return. */
 	int sampled_number = std::min(MS, N);
 	auto x_arr = LinspaceFXP(a, b, sampled_number);
-	if (EvaluatePrecision(F, disc_poly, x_arr))
+	if (_CheckPrecision(F, disc_poly, x_arr))
 		return disc_poly;
 	else
 		return nullptr;
@@ -150,7 +150,7 @@ static void ExpandPoly(disc_poly_ptr poly, int k)
 		poly->emplace_back((fxp_t)0, (fxp_t)0);
 }
 
-static bool EvaluatePrecision(func_t F, disc_poly_ptr poly, fxp_arr_ptr points)
+static bool _CheckPrecision(func_t F, disc_poly_ptr poly, fxp_arr_ptr points)
 {
 	for (auto x : *points)
 	{
@@ -255,12 +255,81 @@ static void ScaleC(flp_t c, int k, flp_t x, fxp_t* c_hat, fxp_t* s_hat)
 */
 #pragma region ResidualBoosting
 
+typedef CompoundFunc<MonoFunc<func_t>, MonoFunc<disc_poly_t>, BinarySub> _BoostSubFunc;
+static FuncPtr _GetBoostSubFunc(func_t F, disc_poly_ptr p);
+
+static disc_poly_ptr Boost(disc_poly_ptr p, cont_poly_ptr r, flp_t a, flp_t b);
+// p_t: p_hat_temp, p_s: p_hat_star
+static bool _CheckBenefit(func_t F, disc_poly_ptr p_t, disc_poly_ptr p_s, fxp_arr_ptr x_set);
+
 disc_poly_ptr ResidualBoosting(disc_poly_ptr poly, func_t F, flp_t a, flp_t b)
 {
-	disc_poly_ptr ret = disc_poly_ptr(new disc_poly_t(*poly));
+	// Make a physical copy.
+	disc_poly_ptr p_star = disc_poly_ptr(new disc_poly_t(*poly));
+
+	// Create function for interpolation
+	FuncPtr R(_GetBoostSubFunc(F, p_star));
 	
+	const int NS = std::min(MS, GetFeasiblePointNumber(a, b));
+	assert(NS > 0);
+
+	auto x_set = LinspaceFXP(a, b, NS);
+	int k = (int)poly->size();	// p_k
+	for (int i = k - 1; i >= 0; i--)
+	{
+		auto r = ChebyshevInterpolation(R, a, b, i);
+		auto p_temp = Boost(p_star, r, a, b);
+		if (_CheckBenefit(F, p_temp, p_star, x_set))
+		{
+			p_star = p_temp;
+			R = _GetBoostSubFunc(F, p_star);
+		}
+	}
+
+	return p_star;
+}
+
+static FuncPtr _GetBoostSubFunc(func_t F, disc_poly_ptr p)
+{
+	return FuncPtr(new _BoostSubFunc(MonoFunc<func_t>(F), MonoFunc<disc_poly_t>(*p), BinarySub()));
+}
+
+static disc_poly_ptr Boost(disc_poly_ptr p, cont_poly_ptr r, flp_t a, flp_t b)
+{
+	int k = (int)p->size();	// k
+	int kr = (int)r->size(); // k'
 	
-	return nullptr;
+	assert(k >= kr);
+
+	cont_poly_ptr temp(new cont_poly_t());	// p_k'
+	for (int i = 0; i < kr; i++)
+	{
+		flp_t coef = FXPsimFLP((*p)[i].first) * FXPsimFLP((*p)[i].second) + (*r)[i];
+		temp->push_back(coef);
+	}
+	auto temp_hat = ScalePoly(temp, a, b);	// p_k'_hat
+
+	disc_poly_ptr ret(new disc_poly_t());
+	for (int i = 0; i <= kr; i++)
+		ret->emplace_back((*temp_hat)[i].first, (*temp_hat)[i].second);
+	for (int i = kr + 1; i <= k; i++)
+		ret->emplace_back((*p)[i].first, (*p)[i].second);
+	
+	return ret;
+}
+
+static bool _CheckBenefit(func_t F, disc_poly_ptr p_t, disc_poly_ptr p_s, fxp_arr_ptr x_set)
+{
+	flp_t m_temp = 0.0;
+	flp_t m_star = 0.0;
+
+	for (auto x : *x_set)
+	{
+		m_temp = std::max(m_temp, Distance(F(FXPsimFLP(x)), EvaluateDiscAsCont(p_t, x)));
+		m_star = std::max(m_star, Distance(F(FXPsimFLP(x)), EvaluateDiscAsCont(p_s, x)));
+	}
+
+	return m_temp < m_star;
 }
 
 #pragma endregion

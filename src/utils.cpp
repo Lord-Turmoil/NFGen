@@ -54,6 +54,11 @@ flp_t fixed_to_float(fxp_t fxp, unsigned f)
 
 #pragma region LinearSpace
 
+int GetFeasiblePointNumber(flp_t a, flp_t b)
+{
+	return std::max(0, (int)std::floor((b - a) * (double)((uint64_t)1 << fxp_f)));
+}
+
 /*
  * There is no legality check by now...
  */

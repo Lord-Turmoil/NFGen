@@ -15,6 +15,8 @@ fxp_t float_to_fixed(flp_t flp, unsigned f);
 flp_t fixed_to_float(fxp_t fxp, unsigned f);
 
 
+int GetFeasiblePointNumber(flp_t a, flp_t b);
+
 flp_arr_ptr LinspaceFLP(flp_t a, flp_t b, int n);
 fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n);
 

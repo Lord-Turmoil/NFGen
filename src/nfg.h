@@ -4,7 +4,6 @@
 #define _NFG_H_
 
 #include "defines.h"
-#include "func.h"
 
 /*
  * Abbreviations:

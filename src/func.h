@@ -49,10 +49,10 @@ private:
 };
 
 template<>
-class MonoFunc<disc_poly_ptr> : public BaseFunc
+class MonoFunc<disc_poly_t> : public BaseFunc
 {
 public:
-	MonoFunc(const disc_poly_ptr& func) : _func(func) {}
+	MonoFunc(const disc_poly_t& func) : _func(func) {}
 	virtual ~MonoFunc() {}
 
 	flp_t Evaluate(flp_t x)
@@ -61,7 +61,7 @@ public:
 	}
 
 private:
-	disc_poly_ptr _func;
+	disc_poly_t _func;
 };
 
 template<>
