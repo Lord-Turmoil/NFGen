@@ -66,7 +66,7 @@ void func_test()
 	poly->push_back(1);
 	poly->push_back(1);
 
-	FuncPtr p2 = FuncPtr(new MonoFunc<cont_poly_ptr>(poly));
+	FuncPtr p2 = FuncPtr(new MonoFunc<cont_poly_t>(*poly.get()));
 
 	printf("%f\n", p2->Evaluate(3));
 }

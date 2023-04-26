@@ -105,10 +105,15 @@ fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n)
 
 flp_t EvaluateDiscAsCont(disc_poly_ptr poly, fxp_t x)
 {
+	return EvaluateDiscAsCont(*poly, x);
+}
+
+flp_t EvaluateDiscAsCont(const disc_poly_t& poly, fxp_t x)
+{
 	flp_t base = fixed_to_float(x, fxp_f);
 	flp_t ret = 0;
 
-	for (auto it = poly->rbegin(); it != poly->rend(); it++)
+	for (auto it = poly.rbegin(); it != poly.rend(); it++)
 	{
 		ret *= base;
 		ret += fixed_to_float(it->first, fxp_f) * fixed_to_float(it->second, fxp_f);
@@ -122,11 +127,21 @@ fxp_t EvaluateDiscAsDisc(disc_poly_ptr poly, fxp_t x)
 	return float_to_fixed(EvaluateDiscAsCont(poly, x), fxp_f);
 }
 
+fxp_t EvaluateDiscAsDisc(const disc_poly_t& poly, fxp_t x)
+{
+	return float_to_fixed(EvaluateDiscAsCont(poly, x), fxp_f);
+}
+
 flp_t EvaluateCont(cont_poly_ptr poly, flp_t x)
+{
+	return EvaluateCont(*poly, x);
+}
+
+flp_t EvaluateCont(const cont_poly_t& poly, flp_t x)
 {
 	flp_t ret = 0.0;
 
-	for (auto it = poly->rbegin(); it != poly->rend(); it++)
+	for (auto it = poly.rbegin(); it != poly.rend(); it++)
 		ret = ret * x + *it;
 
 	return ret;

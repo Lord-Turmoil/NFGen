@@ -20,8 +20,13 @@ fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n);
 
 
 flp_t EvaluateDiscAsCont(disc_poly_ptr poly, fxp_t x);
+flp_t EvaluateDiscAsCont(const disc_poly_t& poly, fxp_t x);
+
 fxp_t EvaluateDiscAsDisc(disc_poly_ptr poly, fxp_t x);
+fxp_t EvaluateDiscAsDisc(const disc_poly_t& poly, fxp_t x);
+
 flp_t EvaluateCont(cont_poly_ptr poly, flp_t x);
+flp_t EvaluateCont(const cont_poly_t& poly, flp_t x);
 
 
 flp_t Distance(flp_t x, flp_t y);

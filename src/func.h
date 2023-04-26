@@ -65,16 +65,16 @@ private:
 };
 
 template<>
-class MonoFunc<cont_poly_ptr> : public BaseFunc
+class MonoFunc<cont_poly_t> : public BaseFunc
 {
 public:
-	MonoFunc(const cont_poly_ptr& func) : _func(func) {}
+	MonoFunc(const cont_poly_t& func) : _func(func) {}
 	virtual ~MonoFunc() {}
 
 	flp_t Evaluate(flp_t x) { return EvaluateCont(_func, x); }
 
 private:
-	cont_poly_ptr _func;
+	cont_poly_t _func;
 };
 
 
