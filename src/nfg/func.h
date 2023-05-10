@@ -43,19 +43,6 @@ private:
 };
 
 template<>
-class MonoFunc<func_t> : public BaseFunc
-{
-public:
-	MonoFunc(func_t func) { _func = func; }
-	virtual ~MonoFunc() {}
-
-	flp_t Evaluate(flp_t x) { return _func(x); }
-
-private:
-	flp_t(*_func)(flp_t);
-};
-
-template<>
 class MonoFunc<disc_poly_t> : public BaseFunc
 {
 public:
@@ -120,39 +107,6 @@ private:
 	std::vector<_Func> _funcs;
 	std::vector<flp_t> _divs;
 };
-
-#if 0	// Cannot pass compilation... :(
-template<>
-class SegmentFunc<func_t> : public BaseFunc
-{
-public:
-	SegmentFunc(const std::vector<func_t>& funcs,
-				const std::vector<flp_t>& divs) :
-		_divs(divs)
-	{
-		// Hope there's no errors... :(
-		for (int i = 0; i < funcs.size(); i++)
-			_funcs.push_back(funcs[i]);
-	}
-
-	flp_t Evaluate(flp_t x)
-	{
-		int i = 0;
-		while (i < _divs.size())
-		{
-			if (x < _divs[i])
-				break;
-		}
-		i = std::min(i, (int)(_funcs.size() - 1));
-		return _funcs[i](x);
-	}
-
-private:
-	std::vector<func_t> _funcs;
-	std::vector<flp_t> _divs;
-};
-
-#endif
 
 template<>
 class SegmentFunc<disc_poly_t> : public BaseFunc
