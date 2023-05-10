@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: util.cpp
+**
+** Description: Utility functions.
+*/
+
 #include "utils.h"
 
 #include <cmath>

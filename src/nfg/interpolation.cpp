@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: interpolation.cpp
+**
+** Description: Interpolation implementation.
+*/
+
 #include "interpolation.h"
 
 #include <cmath>

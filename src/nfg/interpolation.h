@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: interpolation.h
+**
+** Description: Interpolation implementation.
+*/
+
 #pragma once
 
 #include "defines.h"

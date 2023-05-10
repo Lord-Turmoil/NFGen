@@ -42,6 +42,12 @@
     <ClInclude Include="src\nfg\interpolation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dump.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\test.cpp">
@@ -60,6 +66,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\nfg\interpolation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dump.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

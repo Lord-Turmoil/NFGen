@@ -1,9 +1,18 @@
+/********************************************************************
+** Filename: nfg.h
+**
+** Description: Implementation of NFGen core algorithms.
+*/
+
 #pragma once
 
 #ifndef _NFG_H_
 #define _NFG_H_
 
 #include "defines.h"
+
+#include <cstdio>
+
 
 /*
  * Abbreviations:
@@ -29,5 +38,6 @@ disc_poly_ptr ScalePoly(cont_poly_ptr poly, flp_t a, flp_t b);
 
 // Algo 6.
 disc_poly_ptr ResidualBoosting(disc_poly_ptr poly, func_t F, flp_t a, flp_t b);
+
 
 #endif

@@ -127,6 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\dump.h" />
+    <ClInclude Include="src\macros.h" />
     <ClInclude Include="src\nfg\defines.h" />
     <ClInclude Include="src\nfg\func.h" />
     <ClInclude Include="src\nfg\global.h" />
@@ -136,8 +138,10 @@
     <ClInclude Include="src\nfg\utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\nfg\global.cpp" />
     <ClCompile Include="src\nfg\interpolation.cpp" />
+    <ClCompile Include="src\dump.cpp" />
     <ClCompile Include="src\test.cpp" />
     <ClCompile Include="src\nfg\nfg.cpp" />
     <ClCompile Include="src\tools\random.cpp" />

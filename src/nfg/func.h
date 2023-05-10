@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: func.h
+** 
+** Description: Function templates.
+*/
+
 #pragma once
 
 #ifndef _FUNC_H_

@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: global.h
+**
+** Description: Global variables and constants.
+*/
+
 #include "global.h"
 
 const int MS = 1000;

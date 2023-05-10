@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: global.cpp
+**
+** Description: Global variables and constants.
+*/
+
 #pragma once
 
 #ifndef _GLOBAL_H_

@@ -1,13 +1,17 @@
+#include "macros.h"
+
+#ifdef _TEST
+
 #include <cstdio>
 #include <memory>
 #include <cstdlib>
 #include <cinttypes>
 #include <iostream>
 
-#include "utils.h"
+#include "nfg/utils.h"
 #include "tools/random.h"
-#include "nfg.h"
-#include "func.h"
+#include "nfg/nfg.h"
+#include "nfg/func.h"
 
 void float_to_fix_test();
 void smart_pointer_test();
@@ -182,3 +186,5 @@ void vector_test()
 
 	printf("%d\n", vec[2]);
 }
+
+#endif

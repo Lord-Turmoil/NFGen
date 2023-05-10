@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: util.h
+**
+** Description: Utility functions.
+*/
+
 #pragma once
 
 #ifndef _UTILS_H_

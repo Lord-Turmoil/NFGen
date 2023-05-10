@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: defines.h
+** 
+** Description: Global type definitions.
+*/
+
 #pragma once
 
 #ifndef _DEFINES_H_

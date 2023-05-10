@@ -1,3 +1,9 @@
+/********************************************************************
+** Filename: nfg.cpp
+**
+** Description: Implementation of NFGen core algorithms.
+*/
+
 #include "nfg.h"
 #include "global.h"
 #include "utils.h"
