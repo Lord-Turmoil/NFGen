@@ -51,7 +51,7 @@ static void _AddPoly(disc_poly_ptr poly, flp_t a, flp_t b)
  */
 static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 {
-	// printf("_FitPiecewiseAux(%f, %f)\n", a, b);
+	printf("_FitPiecewiseAux(%f, %f)\n", a, b);
 
 	disc_poly_ptr poly = FitOnePiece(F, a, b, k);
 	if (poly)

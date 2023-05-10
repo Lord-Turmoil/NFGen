@@ -14,11 +14,16 @@ const double A = 0.044715;
 
 static flp_t gelu(flp_t x);
 static flp_t zero(flp_t x);
+static flp_t sinx(flp_t x);
 
 int main()
 {
+	double left = -5.0;
+	double right = 5.0;
+	int sample = 100;
+
 	// Get NFGen result.
-	FitPiecewise(gelu, -10.0, 2.0, MAX_K);
+	FitPiecewise(sinx, left, right, MAX_K);
 	std::vector<disc_poly_ptr> polys;
 	std::vector<flp_t> divs;
 	if (!GetResult(&polys, &divs))
@@ -46,8 +51,15 @@ int main()
 		printf("Cannot open 'function.csv' for writing!\n");
 		return 2;
 	}
-	DumpForPython(fp, p, -10.0, 2.0, 100);
-	// DumpForPython(fp, FuncPtr(new MonoFunc<func_t>(gelu)), -10.0, 2.0, 100);
+	DumpForPython(fp, p, left, right, sample);
+	fclose(fp);
+
+	if (fopen_s(&fp, "example.csv", "w") != 0)
+	{
+		printf("Cannot open 'example.csv' for writing!\n");
+		return 2;
+	}
+	DumpForPython(fp, FuncPtr(new MonoFunc<func_t>(sinx)), left, right, sample);
 	fclose(fp);
 
 	return 0;
@@ -61,6 +73,11 @@ static flp_t gelu(flp_t x)
 static flp_t zero(flp_t x)
 {
 	return 0.0;
+}
+
+static flp_t sinx(flp_t x)
+{
+	return std::sin(x);
 }
 
 #endif
