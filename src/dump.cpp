@@ -41,11 +41,12 @@ void DumpResult(FILE* fp, std::vector<disc_poly_ptr>* polys, std::vector<flp_t>*
 		return;
 	}
 
+	fprintf(fp, "------------------------------\n");
 	for (int i = 0; i < (int)polys->size(); i++)
 	{
-		fprintf(fp, "[%8.6f, %8.6f]: ", (*divs)[i], (*divs)[i + 1]);
+		fprintf(fp, "[%+10.6f, %+10.6f]: ", (*divs)[i], (*divs)[i + 1]);
 		for (auto it : *(*polys)[i])
-			fprintf(fp, "(%" PRI_FXP ", %" PRI_FXP ") ", it.first, it.second);
+			fprintf(fp, "%+10.6f, ", fixed_to_float(it.first, fxp_f) * fixed_to_float(it.second, fxp_f));
 		fprintf(fp, "\n");
 	}
 
