@@ -1,6 +1,6 @@
 /********************************************************************
 ** Filename: func.h
-** 
+**
 ** Description: Function templates.
 */
 
@@ -22,6 +22,7 @@ public:
 	virtual ~BaseFunc() {}
 	virtual flp_t Evaluate(flp_t x) = 0;
 };
+
 
 /*
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -51,7 +52,7 @@ public:
 	flp_t Evaluate(flp_t x) { return _func(x); }
 
 private:
-	flp_t (*_func)(flp_t);
+	flp_t(*_func)(flp_t);
 };
 
 template<>
@@ -81,6 +82,131 @@ public:
 
 private:
 	cont_poly_t _func;
+};
+
+
+/*
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+** Segment Function
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+
+// Segment function DOES NOT validate if funcs and divs segment number matches.
+
+template<typename _Func>
+class SegmentFunc : public BaseFunc
+{
+public:
+	SegmentFunc(const std::vector<_Func>& funcs,
+				const std::vector<flp_t>& divs) :
+		_funcs(funcs), _divs(divs)
+	{
+		// Hope there's no errors... :(
+	}
+
+	flp_t Evaluate(flp_t x)
+	{
+		int i = 0;
+		while (i < _divs.size())
+		{
+			if (x < _divs[i])
+				break;
+		}
+		i = std::min(i, (int)(_funcs.size() - 1));
+		return _funcs[i](x);
+	}
+
+private:
+	std::vector<_Func> _funcs;
+	std::vector<flp_t> _divs;
+};
+
+
+template<>
+class SegmentFunc<func_t> : public BaseFunc
+{
+	using _Func = func_t;
+public:
+	SegmentFunc(const std::vector<_Func>& funcs,
+				const std::vector<flp_t>& divs) :
+		_funcs(funcs), _divs(divs)
+	{
+		// Hope there's no errors... :(
+	}
+
+	flp_t Evaluate(flp_t x)
+	{
+		int i = 0;
+		while (i < _divs.size())
+		{
+			if (x < _divs[i])
+				break;
+		}
+		i = std::min(i, (int)(_funcs.size() - 1));
+		return _funcs[i](x);
+	}
+
+private:
+	std::vector<_Func> _funcs;
+	std::vector<flp_t> _divs;
+};
+
+template<>
+class SegmentFunc<disc_poly_t> : public BaseFunc
+{
+	using _Func = disc_poly_t;
+public:
+	SegmentFunc(const std::vector<_Func>& funcs,
+				const std::vector<flp_t>& divs) :
+		_funcs(funcs), _divs(divs)
+	{
+		// Hope there's no errors... :(
+	}
+
+	flp_t Evaluate(flp_t x)
+	{
+		int i = 0;
+		while (i < _divs.size())
+		{
+			if (x < _divs[i])
+				break;
+		}
+		i = std::min(i, (int)(_funcs.size() - 1));
+		return EvaluateDiscAsCont(_funcs[i], float_to_fixed(x, fxp_f));
+	}
+
+private:
+	std::vector<_Func> _funcs;
+	std::vector<flp_t> _divs;
+};
+
+template<>
+class SegmentFunc<cont_poly_t> : public BaseFunc
+{
+	using _Func = cont_poly_t;
+public:
+	SegmentFunc(const std::vector<_Func>& funcs,
+				const std::vector<flp_t>& divs) :
+		_funcs(funcs), _divs(divs)
+	{
+		// Hope there's no errors... :(
+	}
+
+	flp_t Evaluate(flp_t x)
+	{
+		int i = 0;
+		while (i < _divs.size())
+		{
+			if (x < _divs[i])
+				break;
+		}
+		i = std::min(i, (int)(_funcs.size() - 1));
+		return EvaluateCont(_funcs[i], x);
+	}
+
+private:
+	std::vector<_Func> _funcs;
+	std::vector<flp_t> _divs;
 };
 
 
@@ -130,6 +256,7 @@ public:
 		return lhs / rhs;
 	}
 };
+
 
 /*
 **+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
