@@ -13,6 +13,7 @@ const double PI = 3.14159265358979323846;
 const double A = 0.044715;
 
 static flp_t gelu(flp_t x);
+static flp_t zero(flp_t x);
 
 int main()
 {
@@ -32,6 +33,14 @@ int main()
 	// Dump Result for python.
 	FILE* fp;
 
+	if (fopen_s(&fp, "result.txt", "a") != 0)
+	{
+		printf("Cannot open 'function.csv' for writing!\n");
+		return 2;
+	}
+	DumpResult(fp, &polys, &divs);
+	fclose(fp);
+
 	if (fopen_s(&fp, "function.csv", "w") != 0)
 	{
 		printf("Cannot open 'function.csv' for writing!\n");
@@ -47,6 +56,11 @@ int main()
 static flp_t gelu(flp_t x)
 {
 	return 0.5 * x * (1 + tanh(sqrt(2.0 / PI) * (x + A * std::pow(x, 3.0))));
+}
+
+static flp_t zero(flp_t x)
+{
+	return 0.0;
 }
 
 #endif
