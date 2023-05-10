@@ -127,21 +127,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\defines.h" />
-    <ClInclude Include="src\func.h" />
-    <ClInclude Include="src\global.h" />
-    <ClInclude Include="src\interpolation.h" />
-    <ClInclude Include="src\nfg.h" />
+    <ClInclude Include="src\nfg\defines.h" />
+    <ClInclude Include="src\nfg\func.h" />
+    <ClInclude Include="src\nfg\global.h" />
+    <ClInclude Include="src\nfg\interpolation.h" />
+    <ClInclude Include="src\nfg\nfg.h" />
     <ClInclude Include="src\tools\random.h" />
-    <ClInclude Include="src\utils.h" />
+    <ClInclude Include="src\nfg\utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\global.cpp" />
-    <ClCompile Include="src\interpolation.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\nfg.cpp" />
+    <ClCompile Include="src\nfg\global.cpp" />
+    <ClCompile Include="src\nfg\interpolation.cpp" />
+    <ClCompile Include="src\test.cpp" />
+    <ClCompile Include="src\nfg\nfg.cpp" />
     <ClCompile Include="src\tools\random.cpp" />
-    <ClCompile Include="src\utils.cpp" />
+    <ClCompile Include="src\nfg\utils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

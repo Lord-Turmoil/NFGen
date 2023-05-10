@@ -135,6 +135,8 @@ static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	/* Step 5. Check accuracy and return. */
 	int sampled_number = std::min(MS, N);
 	auto x_arr = LinspaceFXP(a, b, sampled_number);
+	assert(x_arr);
+
 	if (_CheckPrecision(F, disc_poly, x_arr))
 		return disc_poly;
 	else
@@ -274,6 +276,8 @@ disc_poly_ptr ResidualBoosting(disc_poly_ptr poly, func_t F, flp_t a, flp_t b)
 	assert(NS > 0);
 
 	auto x_set = LinspaceFXP(a, b, NS);
+	assert(x_set);
+
 	int k = (int)poly->size();	// p_k
 	for (int i = k - 1; i >= 0; i--)
 	{

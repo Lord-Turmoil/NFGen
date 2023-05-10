@@ -64,6 +64,12 @@ int GetFeasiblePointNumber(flp_t a, flp_t b)
  */
 flp_arr_ptr LinspaceFLP(flp_t a, flp_t b, int n)
 {
+	fxp_t fxpa = float_to_fixed(a, fxp_f);
+	fxp_t fxpb = float_to_fixed(b, fxp_f);
+	n = std::min((int)(fxpb - fxpa), n);
+	if (n <= 0)
+		return nullptr;
+
 	flp_arr_ptr arr(new flp_arr_t(n));
 
 	flp_t step = (b - a) / (n - 1);
@@ -91,6 +97,8 @@ fxp_arr_ptr LinspaceFXP(flp_t a, flp_t b, int n)
 {
 	fxp_arr_ptr arr(new fxp_arr_t(n));
 	auto flp_arr = LinspaceFLP(a, b, n);
+	if (flp_arr == nullptr)
+		return nullptr;
 
 	float_to_fixed(flp_arr->data(), arr->data(), n, fxp_f);
 

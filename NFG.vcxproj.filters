@@ -21,45 +21,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\utils.h">
+    <ClInclude Include="src\nfg\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\tools\random.h">
       <Filter>Header Files\tools</Filter>
     </ClInclude>
-    <ClInclude Include="src\nfg.h">
+    <ClInclude Include="src\nfg\nfg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\global.h">
+    <ClInclude Include="src\nfg\global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\defines.h">
+    <ClInclude Include="src\nfg\defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\func.h">
+    <ClInclude Include="src\nfg\func.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\interpolation.h">
+    <ClInclude Include="src\nfg\interpolation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="src\test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils.cpp">
+    <ClCompile Include="src\nfg\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\tools\random.cpp">
       <Filter>Source Files\tools</Filter>
     </ClCompile>
-    <ClCompile Include="src\global.cpp">
+    <ClCompile Include="src\nfg\global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\nfg.cpp">
+    <ClCompile Include="src\nfg\nfg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\interpolation.cpp">
+    <ClCompile Include="src\nfg\interpolation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
