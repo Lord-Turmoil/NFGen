@@ -33,7 +33,6 @@ typedef std::shared_ptr<fxp_arr_t> fxp_arr_ptr;
  * F(x) in plaintext using FLP.
  * Here, `func_t` is the so-called continuous function.
  */
-// typedef fxp_t func_t(fxp_t);
 typedef flp_t (*func_t)(flp_t);
 
 /*

@@ -18,12 +18,13 @@ static flp_t sinx(flp_t x);
 
 int main()
 {
-	double left = -5.0;
-	double right = 5.0;
+	flp_t left = -10.0;
+	flp_t right = 2.0;
 	int sample = 100;
+	func_t func = gelu;
 
 	// Get NFGen result.
-	FitPiecewise(sinx, left, right, MAX_K);
+	FitPiecewise(func, left, right, MAX_K);
 	std::vector<disc_poly_ptr> polys;
 	std::vector<flp_t> divs;
 	if (!GetResult(&polys, &divs))
@@ -38,6 +39,7 @@ int main()
 	// Dump Result for python.
 	FILE* fp;
 
+	// Basic result.
 	if (fopen_s(&fp, "result.txt", "a") != 0)
 	{
 		printf("Cannot open 'function.csv' for writing!\n");
@@ -46,6 +48,7 @@ int main()
 	DumpResult(fp, &polys, &divs);
 	fclose(fp);
 
+	// Graph information for NFGen.
 	if (fopen_s(&fp, "function.csv", "w") != 0)
 	{
 		printf("Cannot open 'function.csv' for writing!\n");
@@ -54,12 +57,13 @@ int main()
 	DumpForPython(fp, p, left, right, sample);
 	fclose(fp);
 
-	if (fopen_s(&fp, "example.csv", "w") != 0)
+	// Graph information for standard function.
+	if (fopen_s(&fp, "sample.csv", "w") != 0)
 	{
-		printf("Cannot open 'example.csv' for writing!\n");
-		return 2;
+		printf("Cannot open 'sample.csv' for writing!\n");
+		return 3;
 	}
-	DumpForPython(fp, FuncPtr(new MonoFunc<func_t>(sinx)), left, right, sample);
+	DumpForPython(fp, FuncPtr(new MonoFunc<func_t>(func)), left, right, sample);
 	fclose(fp);
 
 	return 0;
