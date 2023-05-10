@@ -6,7 +6,7 @@ import tensorflow as tf
 
 if __name__ == "__main__":
     # Get NFGen data.
-    filename = "../Work/function.csv"
+    filename = "../Work/template.csv"
     with open(filename) as f:
         reader = csv.reader(f)
         header_row = next(reader)
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         std_y_set.append(tf.nn.gelu(x))
 
     # Draw plot.
-    fig = plt.figure(dpi=128, figsize=(10, 6))
+    fig = plt.figure(dpi=96, figsize=(10, 6))
     plt.plot(x_set, std_y_set, c="red")
     plt.plot(x_set, y_set, c="blue")
 
