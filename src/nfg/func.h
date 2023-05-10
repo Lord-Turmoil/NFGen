@@ -157,7 +157,7 @@ private:
 template<>
 class SegmentFunc<disc_poly_t> : public BaseFunc
 {
-	using _Func = disc_poly_t;
+	using _Func = disc_poly_ptr;
 public:
 	SegmentFunc(const std::vector<_Func>& funcs,
 				const std::vector<flp_t>& divs) :
@@ -186,7 +186,7 @@ private:
 template<>
 class SegmentFunc<cont_poly_t> : public BaseFunc
 {
-	using _Func = cont_poly_t;
+	using _Func = cont_poly_ptr;
 public:
 	SegmentFunc(const std::vector<_Func>& funcs,
 				const std::vector<flp_t>& divs) :

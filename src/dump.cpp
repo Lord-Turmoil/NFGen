@@ -27,14 +27,16 @@ void DumpResult(std::vector<disc_poly_ptr>* polys, std::vector<flp_t>* divs)
 
 void DumpResult(FILE* fp, std::vector<disc_poly_ptr>* polys, std::vector<flp_t>* divs)
 {
+	printf("Dumping Result...\n");
+
 	if (!polys || !divs)
 	{
-		fprintf(fp, "polys and div must not be nullptr!\n");
+		fprintf(stderr, "polys and div must not be nullptr!\n");
 		return;
 	}
 	if (polys->size() + 1 != divs->size())
 	{
-		fprintf(fp, "Segment number mismatch! %zd : %zd\n",
+		fprintf(stderr, "Segment number mismatch! %zd : %zd\n",
 				polys->size(), divs->size());
 		return;
 	}
@@ -47,6 +49,7 @@ void DumpResult(FILE* fp, std::vector<disc_poly_ptr>* polys, std::vector<flp_t>*
 		fprintf(fp, "\n");
 	}
 
+	printf("Succeeded!\n");
 }
 
 void DumpForPython(FuncPtr func, flp_t a, flp_t b, int n)
@@ -56,6 +59,8 @@ void DumpForPython(FuncPtr func, flp_t a, flp_t b, int n)
 
 void DumpForPython(FILE* fp, FuncPtr func, flp_t a, flp_t b, int n)
 {
+	printf("Dumping CSV...\n");
+
 	fprintf(fp, "x,y\n");	// csv header
 	auto x_set = LinspaceFLP(a, b, n);
 	if (!x_set)
@@ -63,4 +68,5 @@ void DumpForPython(FILE* fp, FuncPtr func, flp_t a, flp_t b, int n)
 
 	for (auto x : *x_set)
 		fprintf(fp, "%f,%f\n", x, func->Evaluate(x));
+	printf("Succeeded!\n");
 }

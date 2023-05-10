@@ -51,6 +51,8 @@ static void _AddPoly(disc_poly_ptr poly, flp_t a, flp_t b)
  */
 static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 {
+	printf("_FitPiecewiseAux(%f, %f)\n", a, b);
+
 	disc_poly_ptr poly = FitOnePiece(F, a, b, k);
 	if (poly)
 	{
@@ -59,8 +61,8 @@ static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 	else
 	{
 		double mid = (a + b) / 2;
-		FitPiecewise(F, a, mid, k);
-		FitPiecewise(F, mid, b, k);
+		_FitPiecewiseAux(F, a, mid, k);
+		_FitPiecewiseAux(F, mid, b, k);
 
 		if (m_cnt++ > m_MAX)
 			return;
@@ -108,6 +110,8 @@ static bool _CheckPrecision(func_t F, disc_poly_ptr poly, fxp_arr_ptr points);
 
 static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 {
+	bool extreme = false;
+
 	/* Step 1. Constrain k */
 	int k_bar = ConstrainK(a, b, k);
 	
@@ -118,7 +122,6 @@ static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	 * N = (b - a) / (2 ^ -fxp_f) = (b - a) * (2 ^ fxp_f)
 	 */
 	int N = GetFeasiblePointNumber(a, b);
-	
 	cont_poly_ptr cont_poly(nullptr);
 	if (N > k_bar + 1)
 		cont_poly = ChebyshevInterpolation(FuncPtr(new MonoFunc<func_t>(F)), a, b, k);
@@ -134,7 +137,8 @@ static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	disc_poly_ptr disc_poly = ScalePoly(cont_poly, a, b);
 
 	/* Step 4. Further reducing the rounding precision loss. */
-	disc_poly = ResidualBoosting(disc_poly, F, a, b);
+	if (!extreme)
+		disc_poly = ResidualBoosting(disc_poly, F, a, b);
 
 	ExpandPoly(disc_poly, k);
 
@@ -319,10 +323,11 @@ static disc_poly_ptr Boost(disc_poly_ptr p, cont_poly_ptr r, flp_t a, flp_t b)
 	}
 	auto temp_hat = ScalePoly(temp, a, b);	// p_k'_hat
 
+	// We got a problem here.
 	disc_poly_ptr ret(new disc_poly_t());
-	for (int i = 0; i <= kr; i++)
+	for (int i = 0; i < kr; i++)
 		ret->emplace_back((*temp_hat)[i].first, (*temp_hat)[i].second);
-	for (int i = kr + 1; i <= k; i++)
+	for (int i = kr; i < k; i++)
 		ret->emplace_back((*p)[i].first, (*p)[i].second);
 	
 	return ret;

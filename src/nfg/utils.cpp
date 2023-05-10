@@ -62,7 +62,7 @@ flp_t fixed_to_float(fxp_t fxp, unsigned f)
 
 int GetFeasiblePointNumber(flp_t a, flp_t b)
 {
-	return std::max(0, (int)std::floor((b - a) * (double)((uint64_t)1 << fxp_f)));
+	return std::max(1, (int)std::floor((b - a) * (double)((uint64_t)1 << fxp_f)));
 }
 
 /*
@@ -74,7 +74,7 @@ flp_arr_ptr LinspaceFLP(flp_t a, flp_t b, int n)
 	fxp_t fxpb = float_to_fixed(b, fxp_f);
 	n = std::min((int)(fxpb - fxpa), n);
 	if (n <= 0)
-		return nullptr;
+		return flp_arr_ptr(new flp_arr_t(1, (a + b) * 0.5));
 
 	flp_arr_ptr arr(new flp_arr_t(n));
 
