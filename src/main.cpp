@@ -11,17 +11,20 @@
   
 const double PI = 3.14159265358979323846;
 const double A = 0.044715;
+const double e = 2.718281828459045235360;
 
 static flp_t gelu(flp_t x);
 static flp_t zero(flp_t x);
 static flp_t sinx(flp_t x);
+static flp_t sigmoid(flp_t x);
+static flp_t sinxx(flp_t x);
 
 int main()
 {
-	flp_t left = -10.0;
-	flp_t right = 2.0;
-	int sample = 100;
-	func_t func = gelu;
+	flp_t left = -5.0;
+	flp_t right = 5.0;
+	int sample = 1000;
+	func_t func = sinxx;
 
 	// Get NFGen result.
 	FitPiecewise(func, left, right, MAX_K);
@@ -83,5 +86,16 @@ static flp_t sinx(flp_t x)
 {
 	return std::sin(x);
 }
+
+static flp_t sigmoid(flp_t x)
+{
+	return 1.0 / (1 + std::pow(e, -x));
+}
+
+static flp_t sinxx(flp_t x)
+{
+	return std::sin(x * x);
+}
+
 
 #endif
