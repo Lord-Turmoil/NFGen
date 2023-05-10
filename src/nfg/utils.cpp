@@ -60,6 +60,7 @@ flp_t fixed_to_float(fxp_t fxp, unsigned f)
 
 #pragma region LinearSpace
 
+// At lease one.
 int GetFeasiblePointNumber(flp_t a, flp_t b)
 {
 	return std::max(1, (int)std::floor((b - a) * (double)((uint64_t)1 << fxp_f)));
@@ -94,7 +95,7 @@ flp_arr_ptr LinspaceFLP(flp_t a, flp_t b, int n)
 		t -= 2;
 	}
 	if (t > 0)
-		(*arr)[i] = (left + right) / 2;
+		(*arr)[i] = (left + right) * 0.5;
 
 	return arr;
 }
@@ -130,7 +131,7 @@ flp_t EvaluateDiscAsCont(disc_poly_ptr poly, fxp_t x)
 flp_t EvaluateDiscAsCont(const disc_poly_t& poly, fxp_t x)
 {
 	flp_t base = fixed_to_float(x, fxp_f);
-	flp_t ret = 0;
+	flp_t ret = 0.0;
 
 	for (auto it = poly.rbegin(); it != poly.rend(); it++)
 	{

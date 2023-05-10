@@ -3,9 +3,9 @@
 #ifndef _MACROS_H_
 #define _MACROS_H_
 
-// #define _TEST
+#define _TEST 0
 
-#ifdef _TEST
+#if _TEST
 #endif
 
 

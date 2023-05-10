@@ -173,6 +173,7 @@ public:
 		{
 			if (x < _divs[i])
 				break;
+			i++;
 		}
 		i = std::min(i, (int)(_funcs.size() - 1));
 		return EvaluateDiscAsCont(_funcs[i], float_to_fixed(x, fxp_f));

@@ -1,6 +1,6 @@
 #include "macros.h"
 
-#ifdef _TEST
+#if _TEST
 
 #include <cstdio>
 #include <memory>
@@ -26,7 +26,10 @@ int main()
 	// vector_test();
 	// fxp_mult_test();
 	// lagrange_test();
-	func_test();
+	// func_test();
+	flp_t a = fixed_to_float(3346, fxp_f);
+	flp_t b = fixed_to_float(1, fxp_f);
+	printf("%f, %f, %f\n", a, b, a * b);
 
 	return 0;
 }

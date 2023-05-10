@@ -6,7 +6,7 @@ import tensorflow as tf
 
 if __name__ == "__main__":
     # Get NFGen data.
-    filename = "../Work/template.csv"
+    filename = "../Work/function.csv"
     with open(filename) as f:
         reader = csv.reader(f)
         header_row = next(reader)

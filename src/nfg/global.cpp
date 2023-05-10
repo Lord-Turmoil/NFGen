@@ -15,7 +15,7 @@ const unsigned fxp_f = 12;
 const int MAX_K = 4;
 
 const flp_t EPSILON = 1e-3;
-const flp_t SOFT_ZERO = 1e-1;
+const flp_t SOFT_ZERO = 1e-4;
 
 std::vector<disc_poly_ptr> disc_polys;
 std::vector<flp_t> divisions;

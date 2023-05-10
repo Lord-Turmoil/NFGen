@@ -51,7 +51,7 @@ static void _AddPoly(disc_poly_ptr poly, flp_t a, flp_t b)
  */
 static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 {
-	printf("_FitPiecewiseAux(%f, %f)\n", a, b);
+	// printf("_FitPiecewiseAux(%f, %f)\n", a, b);
 
 	disc_poly_ptr poly = FitOnePiece(F, a, b, k);
 	if (poly)
@@ -110,8 +110,6 @@ static bool _CheckPrecision(func_t F, disc_poly_ptr poly, fxp_arr_ptr points);
 
 static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 {
-	bool extreme = false;
-
 	/* Step 1. Constrain k */
 	int k_bar = ConstrainK(a, b, k);
 	
@@ -137,8 +135,7 @@ static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	disc_poly_ptr disc_poly = ScalePoly(cont_poly, a, b);
 
 	/* Step 4. Further reducing the rounding precision loss. */
-	if (!extreme)
-		disc_poly = ResidualBoosting(disc_poly, F, a, b);
+	disc_poly = ResidualBoosting(disc_poly, F, a, b);
 
 	ExpandPoly(disc_poly, k);
 
@@ -158,7 +155,7 @@ static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
  */
 static void ExpandPoly(disc_poly_ptr poly, int k)
 {
-	while (poly->size() <= k)
+	while (poly->size() < k + 1)
 		poly->emplace_back((fxp_t)0, (fxp_t)0);
 }
 
@@ -188,8 +185,24 @@ int ConstrainK(flp_t a, flp_t b, int k)
 {
 	double x_max = std::max(std::abs(a), std::abs(b));
 	double x_min = std::min(std::abs(a), std::abs(b));
-	int k_o = (x_max < 1.0) ? k : (int)std::floor((fxp_n - fxp_f - 1) / std::log2(x_max));
-	int k_u = (x_min > 1.0) ? k : (int)std::floor(fxp_f / (-std::log2(x_min)));
+	int k_o;
+	int k_u;
+
+	if (x_max < 1.0)
+		k_o = k;
+	else if (std::abs(x_max - 1.0) < EPSILON)
+		k_o = k + 5;	// just larger than k
+	else
+		k_o = (int)std::floor((fxp_n - fxp_f - 1) / std::log2(x_max));
+
+	if (a * b < 0)
+		k_u = 3;
+	else if (x_min > 1.0)
+		k_u = k;
+	else if (std::abs(x_min - 1.0) < EPSILON)
+		k_u = k * 5;
+	else
+		k_u = (x_min > 1.0) ? k : (int)std::floor(fxp_f / (-std::log2(x_min)));
 
 	return std::min(k, std::min(k_u, k_o));
 }
@@ -232,11 +245,11 @@ disc_poly_ptr ScalePoly(cont_poly_ptr poly, flp_t a, flp_t b)
 {
 	assert(poly);
 
-	int k = (int)poly->size();
+	int k = (int)poly->size() - 1;
 	flp_t x_hat = std::max(std::abs(a), std::abs(b));
 	disc_poly_ptr disc(new disc_poly_t());
 	fxp_t c, s;
-	for (int i = 0; i < k; i++)
+	for (int i = 0; i <= k; i++)
 	{
 		ScaleC((*poly)[i], i, x_hat, &c, &s);
 		disc->emplace_back(c, s);
@@ -253,8 +266,8 @@ static void ScaleC(flp_t c, int k, flp_t x, fxp_t* c_hat, fxp_t* s_hat)
 	fxp_t s1 = (fxp_t)1;	// FLPsimFXP(2^-f) = 2^-f * 2^f = 1;
 	fxp_t s2 = FLPsimFXP(c * std::pow(x, k) / std::pow(2.0, fxp_n - fxp_f - 1));
 
-	*s_hat = std::min(std::max(s1, s2), (fxp_t)1);
-	*c_hat = FLPsimFXP(c / *s_hat);
+	*s_hat = std::min(std::max(s1, s2), float_to_fixed(1, fxp_f));
+	*c_hat = FLPsimFXP(c / fixed_to_float(*s_hat, fxp_f));
 }
 
 #pragma endregion
@@ -288,8 +301,8 @@ disc_poly_ptr ResidualBoosting(disc_poly_ptr poly, func_t F, flp_t a, flp_t b)
 	auto x_set = LinspaceFXP(a, b, NS);
 	assert(x_set);
 
-	int k = (int)poly->size();	// p_k
-	for (int i = k - 1; i >= 0; i--)
+	int k = (int)poly->size() - 1;	// p_k
+	for (int i = k; i >= 0; i--)
 	{
 		auto r = ChebyshevInterpolation(R, a, b, i);
 		auto p_temp = Boost(p_star, r, a, b);
@@ -310,13 +323,13 @@ static FuncPtr _GetBoostSubFunc(func_t F, disc_poly_ptr p)
 
 static disc_poly_ptr Boost(disc_poly_ptr p, cont_poly_ptr r, flp_t a, flp_t b)
 {
-	int k = (int)p->size();	// k
-	int kr = (int)r->size(); // k'
+	int k = (int)p->size() - 1;	// k
+	int kr = (int)r->size() - 1; // k'
 	
 	assert(k >= kr);
 
 	cont_poly_ptr temp(new cont_poly_t());	// p_k'
-	for (int i = 0; i < kr; i++)
+	for (int i = 0; i <= kr; i++)
 	{
 		flp_t coef = FXPsimFLP((*p)[i].first) * FXPsimFLP((*p)[i].second) + (*r)[i];
 		temp->push_back(coef);
@@ -325,9 +338,9 @@ static disc_poly_ptr Boost(disc_poly_ptr p, cont_poly_ptr r, flp_t a, flp_t b)
 
 	// We got a problem here.
 	disc_poly_ptr ret(new disc_poly_t());
-	for (int i = 0; i < kr; i++)
+	for (int i = 0; i <= kr; i++)
 		ret->emplace_back((*temp_hat)[i].first, (*temp_hat)[i].second);
-	for (int i = kr; i < k; i++)
+	for (int i = kr + 1; i <= k; i++)
 		ret->emplace_back((*p)[i].first, (*p)[i].second);
 	
 	return ret;

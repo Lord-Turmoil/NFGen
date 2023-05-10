@@ -25,9 +25,9 @@ static void _LagrangeAux(int k, int i, int exp, double val, flp_arr_ptr x_set, s
 // Use Chebyshev selected points.
 cont_poly_ptr ChebyshevInterpolation(FuncPtr F, flp_t a, flp_t b, int k_bar)
 {
-	assert(b - a > 0.0);
+	// printf("\tChebyshev (%f, %f)\n", a, b);
 
-	const int N = k_bar;
+	const int N = k_bar + 1;
 
 	flp_arr_ptr x_set = flp_arr_ptr(new flp_arr_t());
 	flp_arr_ptr y_set = flp_arr_ptr(new flp_arr_t());
@@ -46,6 +46,8 @@ cont_poly_ptr ChebyshevInterpolation(FuncPtr F, flp_t a, flp_t b, int k_bar)
 // Use all feasible points in [a, b].
 cont_poly_ptr LagrangeInterpolation(FuncPtr F, flp_t a, flp_t b, int k_bar)
 {
+	// printf("\Lagrange (%f, %f)\n", a, b);
+
 	// Get feasible points.
 	fxp_t left = float_to_fixed(a, fxp_f);
 	fxp_t right = float_to_fixed(b, fxp_f);
@@ -72,12 +74,19 @@ cont_poly_ptr LagrangeInterpolation(FuncPtr F, flp_t a, flp_t b, int k_bar)
 
 static cont_poly_ptr _LagrangeInterpolation(FuncPtr F, flp_arr_ptr x_set, flp_arr_ptr y_set, int k_bar)
 {
+	cont_poly_ptr poly(new cont_poly_t(std::min((int)x_set->size(), k_bar + 1), 0.0));
+
+	if (x_set->size() == 1)
+	{
+		(*poly)[0] = (*y_set)[0];
+		return poly;
+	}
+
 	// Calculate LK
 	std::vector<std::vector<flp_t>> lk(x_set->size());
 	for (int i = 0; i < lk.size(); i++)
 		lk[i] = _LagrangeLK(i, x_set, y_set);
 
-	cont_poly_ptr poly(new cont_poly_t(std::min((int)x_set->size(), k_bar + 1), 0.0));
 	for (int i = 0; i < lk.size(); i++)
 	{
 		for (int j = 0; j < poly->size(); j++)

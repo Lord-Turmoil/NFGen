@@ -1,6 +1,6 @@
 #include "macros.h"
 
-#ifndef _TEST
+#if !_TEST
 
 #include "nfg/nfg.h"
 #include "nfg/global.h"
