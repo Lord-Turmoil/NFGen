@@ -14,8 +14,13 @@
 #include <memory>
 #include <utility>
 
+#include <cinttypes>
+
 typedef double   flp_t;
 typedef uint64_t fxp_t;
+
+#define PRI_FXP PRIu64
+#define PRI_FLP "f"
 
 typedef std::vector<flp_t> flp_arr_t;
 typedef std::vector<fxp_t> fxp_arr_t;

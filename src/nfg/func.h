@@ -121,17 +121,18 @@ private:
 	std::vector<flp_t> _divs;
 };
 
-
+#if 0	// Cannot pass compilation... :(
 template<>
 class SegmentFunc<func_t> : public BaseFunc
 {
-	using _Func = func_t;
 public:
-	SegmentFunc(const std::vector<_Func>& funcs,
+	SegmentFunc(const std::vector<func_t>& funcs,
 				const std::vector<flp_t>& divs) :
-		_funcs(funcs), _divs(divs)
+		_divs(divs)
 	{
 		// Hope there's no errors... :(
+		for (int i = 0; i < funcs.size(); i++)
+			_funcs.push_back(funcs[i]);
 	}
 
 	flp_t Evaluate(flp_t x)
@@ -147,9 +148,11 @@ public:
 	}
 
 private:
-	std::vector<_Func> _funcs;
+	std::vector<func_t> _funcs;
 	std::vector<flp_t> _divs;
 };
+
+#endif
 
 template<>
 class SegmentFunc<disc_poly_t> : public BaseFunc
