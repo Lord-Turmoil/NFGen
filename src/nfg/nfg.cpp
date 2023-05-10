@@ -122,11 +122,11 @@ static disc_poly_ptr FitOnePiece(func_t F, flp_t a, flp_t b, int k)
 	int N = GetFeasiblePointNumber(a, b);
 	cont_poly_ptr cont_poly(nullptr);
 	if (N > k_bar + 1)
-		cont_poly = ChebyshevInterpolation(FuncPtr(new MonoFunc<func_t>(F)), a, b, k);
+		cont_poly = ChebyshevInterpolation(FuncPtr(new MonoFunc<func_t>(F)), a, b, k_bar);
 	else
 	{
 		k_bar = N - 1;
-		cont_poly = LagrangeInterpolation(FuncPtr(new MonoFunc<func_t>(F)), a, b, k);
+		cont_poly = LagrangeInterpolation(FuncPtr(new MonoFunc<func_t>(F)), a, b, k_bar);
 	}
 
 	assert(cont_poly);	// must not be nullptr
