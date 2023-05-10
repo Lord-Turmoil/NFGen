@@ -175,7 +175,10 @@ public:
 				break;
 			i++;
 		}
+		i--;
+		i = std::max(i, 0);
 		i = std::min(i, (int)(_funcs.size() - 1));
+
 		return EvaluateDiscAsCont(_funcs[i], float_to_fixed(x, fxp_f));
 	}
 
@@ -204,7 +207,10 @@ public:
 			if (x < _divs[i])
 				break;
 		}
+		i--;
+		i = std::max(i, 0);
 		i = std::min(i, (int)(_funcs.size() - 1));
+
 		return EvaluateCont(_funcs[i], x);
 	}
 
