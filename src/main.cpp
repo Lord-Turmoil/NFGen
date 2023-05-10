@@ -2,13 +2,9 @@
 
 #ifndef _TEST
 
-
-
-
-
-
-
-
+int main()
+{
+}
 
 
 #endif
