@@ -23,7 +23,10 @@ int main()
 	func_t func = gelu;
 
 	// Get NFGen result.
+	StartTick();
 	FitPiecewise(func, left, right, MAX_K);
+	PrintTick();
+
 	std::vector<disc_poly_ptr> polys;
 	std::vector<flp_t> divs;
 	if (!GetResult(&polys, &divs))
@@ -31,7 +34,9 @@ int main()
 		printf("NFGen failed!\n");
 		return 1;
 	}
+	printf("NFGen succeeded!\n");
 
+	// Display result.
 	DumpResult(&polys, &divs);
 	auto p = FuncPtr(new SegmentFunc<disc_poly_t>(polys, divs));
 

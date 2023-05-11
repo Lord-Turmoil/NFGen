@@ -5,7 +5,9 @@
 */
 
 #include "dump.h"
+
 #include <cmath>
+#include <chrono>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -103,4 +105,19 @@ void DumpForPython(FILE* fp, FuncPtr func, flp_t a, flp_t b, int n)
 	for (auto x : *x_set)
 		fprintf(fp, "%f,%f\n", x, func->Evaluate(x));
 	printf("Succeeded!\n");
+}
+
+
+std::chrono::steady_clock::time_point _start;
+void StartTick()
+{
+	printf("Tick starts...\n");
+	_start = std::chrono::steady_clock::now();
+}
+
+void PrintTick()
+{
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_seconds(end - _start);
+	printf("Tick elapsed: %f seconds.\n", elapsed_seconds.count());
 }
