@@ -8,23 +8,27 @@
 
 #include <cstdio>
 #include <cmath>
-  
+
 const double PI = 3.14159265358979323846;
 const double A = 0.044715;
 const double e = 2.718281828459045235360;
 
-static flp_t gelu(flp_t x);
-static flp_t zero(flp_t x);
-static flp_t sinx(flp_t x);
-static flp_t sigmoid(flp_t x);
-static flp_t sinxx(flp_t x);
+static flp_t gelu(flp_t x)
+{
+	return 0.5 * x * (1 + tanh(sqrt(2.0 / PI) * (x + A * std::pow(x, 3.0))));
+}
+static flp_t zero(flp_t x) { return 0.0; }
+static flp_t sinx(flp_t x) { return std::sin(x); }
+static flp_t sigmoid(flp_t x) { return 1.0 / (1 + std::pow(e, -x)); }
+static flp_t sinxx(flp_t x) { return std::sin(x * x); }
+static flp_t ex(flp_t x) { return std::pow(e, x); }
 
 int main()
 {
-	flp_t left = -5.0;
-	flp_t right = 5.0;
+	flp_t left = -10.0;
+	flp_t right = 2.0;
 	int sample = 1000;
-	func_t func = sinxx;
+	func_t func = gelu;
 
 	// Get NFGen result.
 	StartTick();
@@ -76,31 +80,5 @@ int main()
 
 	return 0;
 }
-
-static flp_t gelu(flp_t x)
-{
-	return 0.5 * x * (1 + tanh(sqrt(2.0 / PI) * (x + A * std::pow(x, 3.0))));
-}
-
-static flp_t zero(flp_t x)
-{
-	return 0.0;
-}
-
-static flp_t sinx(flp_t x)
-{
-	return std::sin(x);
-}
-
-static flp_t sigmoid(flp_t x)
-{
-	return 1.0 / (1 + std::pow(e, -x));
-}
-
-static flp_t sinxx(flp_t x)
-{
-	return std::sin(x * x);
-}
-
 
 #endif
