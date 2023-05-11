@@ -17,3 +17,6 @@ void DumpResult(FILE* fp, std::vector<disc_poly_ptr>* polys, std::vector<flp_t>*
 // Dump x, y as CSV file.
 void DumpForPython(FuncPtr func, flp_t a, flp_t b, int n);
 void DumpForPython(FILE* fp, FuncPtr func, flp_t a, flp_t b, int n);
+
+void StartTick();
+void PrintTick();
