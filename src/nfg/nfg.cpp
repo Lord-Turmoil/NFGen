@@ -88,6 +88,9 @@ static void _FitPiecewiseAux(func_t F, flp_t a, flp_t b, int k)
 			// Erase p[i], then it points at p[i + 1]
 			auto it = disc_polys.erase(disc_polys.begin() + i);
 			*it = poly;	// make p[i + 1] p[k]
+
+			// 2023/05/24: segment count-- ?
+			m_cnt--;
 		}
 		else
 			i++;

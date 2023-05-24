@@ -84,6 +84,7 @@ void DumpResult(FILE* fp, std::vector<disc_poly_ptr>* polys, std::vector<flp_t>*
 		}
 		fprintf(fp, "\n");
 	}
+	fprintf(fp, "\n");
 
 	printf("Succeeded!\n");
 }
