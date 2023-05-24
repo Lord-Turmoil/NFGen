@@ -364,3 +364,27 @@ static bool _CheckBenefit(func_t F, disc_poly_ptr p_t, disc_poly_ptr p_s, fxp_ar
 }
 
 #pragma endregion
+
+
+/*
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+** Auxiliary Functions
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+void LoadConfig(FILE* fp)
+{
+	printf("Loading global variables...\n");
+
+	fscanf_s(fp, "%*s %d", &MS);
+	fscanf_s(fp, "%*s %d", &m_MAX);
+
+	fscanf_s(fp, "%*s %u", &fxp_n);
+	fscanf_s(fp, "%*s %u", &fxp_f);
+
+	fscanf_s(fp, "%*s %d", &MAX_K);
+
+	fscanf_s(fp, "%*s %lf", &EPSILON);
+	fscanf_s(fp, "%*s %lf", &SOFT_ZERO);
+
+	printf("NFGen initialized!\n");
+}

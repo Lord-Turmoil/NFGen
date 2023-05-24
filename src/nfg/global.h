@@ -11,16 +11,16 @@
 
 #include "defines.h"
 
-extern const int MS;    // Max sampling numbers.
-extern const int m_MAX; // Max pieces.
+extern int MS;    // Max sampling numbers.
+extern int m_MAX; // Max pieces.
 
-extern const unsigned fxp_n;
-extern const unsigned fxp_f;
+extern unsigned fxp_n;
+extern unsigned fxp_f;
 
-extern const int MAX_K;
+extern int MAX_K;
 
-extern const flp_t EPSILON;
-extern const flp_t SOFT_ZERO;
+extern flp_t EPSILON;
+extern flp_t SOFT_ZERO;
 
 /*
  * The fitted piecewise polynomial p(k, m) hat.

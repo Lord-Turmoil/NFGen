@@ -18,9 +18,17 @@ static flp_t zero(flp_t x);
 int main()
 {
 	flp_t left = -10.0;
-	flp_t right = 2.0;
-	int sample = 100;
+	flp_t right = 3.0;
+	int sample = 1000;
 	func_t func = gelu;
+	
+	FILE* fp;
+	if (fopen_s(&fp, "config.yaml", "r") != 0)
+	{
+		printf("Could not open 'config.ini' for initialization!\n");
+		return -1;
+	}
+	LoadConfig(fp);
 
 	// Get NFGen result.
 	StartTick();
@@ -41,7 +49,6 @@ int main()
 	auto p = FuncPtr(new SegmentFunc<disc_poly_t>(polys, divs));
 
 	// Dump Result for python.
-	FILE* fp;
 
 	// Basic result.
 	if (fopen_s(&fp, "result.txt", "a") != 0)

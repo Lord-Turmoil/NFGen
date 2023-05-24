@@ -20,6 +20,10 @@
  *   FXP -- fixed point
  */
 
+// Load global variables.
+void LoadConfig(FILE* fp);
+
+
 // Algo 1.
 void FitPiecewise(func_t F, flp_t a, flp_t b, int k);
 

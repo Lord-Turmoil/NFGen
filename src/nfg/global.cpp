@@ -6,16 +6,21 @@
 
 #include "global.h"
 
-const int MS = 1000;
-const int m_MAX = 10;
+// MS: 1000
+int MS = 10000;
 
-const unsigned fxp_n = 32;
-const unsigned fxp_f = 12;
+// m_MAX: 10
+int m_MAX = 10;
 
-const int MAX_K = 4;
+// fxp <32, 12>
+unsigned fxp_n = 32;
+unsigned fxp_f = 12;
 
-const flp_t EPSILON = 1e-3;
-const flp_t SOFT_ZERO = 1;
+int MAX_K = 4;
+
+// epsilon: 1e-3
+flp_t EPSILON = 1e-3;
+flp_t SOFT_ZERO = 1;
 
 std::vector<disc_poly_ptr> disc_polys;
 std::vector<flp_t> divisions;
