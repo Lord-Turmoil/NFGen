@@ -25,7 +25,7 @@ int main()
 	FILE* fp;
 	if (fopen_s(&fp, "config.yaml", "r") != 0)
 	{
-		printf("Could not open 'config.ini' for initialization!\n");
+		printf("Could not open 'config.yaml' for initialization!\n");
 		return -1;
 	}
 	LoadConfig(fp);
