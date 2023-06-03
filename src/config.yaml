@@ -1,0 +1,10 @@
+MS: 10000
+m_MAX: 10
+
+fxp_n: 32
+fxp_f: 12
+
+MAX_K: 4
+
+EPSILON: 0.01
+SOFT_ZERO: 1

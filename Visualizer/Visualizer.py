@@ -1,8 +1,6 @@
 from tkinter import font
 from matplotlib import pyplot as plt
 import csv
-import tensorflow as tf
-
 
 if __name__ == "__main__":
     # Get NFGen data.
