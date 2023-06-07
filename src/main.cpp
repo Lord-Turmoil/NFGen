@@ -25,10 +25,10 @@ static flp_t ex(flp_t x) { return std::pow(e, x); }
 
 int main()
 {
-	flp_t left = -10.0;
-	flp_t right = 2.0;
+	flp_t left = -3.0;
+	flp_t right = 3.0;
 	int sample = 1000;
-	func_t func = gelu;
+	func_t func = sinxx;
 
 	// Get NFGen result.
 	StartTick();
